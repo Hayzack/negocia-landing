@@ -1,0 +1,1019 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NegocIA · Tu negocio, traducido a sistema</title>
+<meta name="description" content="Páginas web, automatizaciones, bases de datos y sistemas con IA para negocios en Venezuela y clientes internacionales.">
+<meta name="theme-color" content="#060807">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Tema oscuro fijo: la marca NegocIA es negro + degradado esmeralda→azul (NegocIA/negocia.md). */
+:root{
+  color-scheme: dark;
+  --ground:#060807;
+  --surface:#0c100f;
+  --line:rgba(214,240,228,.11);
+  --line-strong:rgba(214,240,228,.22);
+  --ink:#ecf3ef;
+  --ink-muted:#9ba7a1;
+  --em:#10b981;            /* esmeralda de marca, pasa 7.9:1 sobre --ground */
+  --az:#2563eb;            /* azul de marca, solo gráficos y rellenos (3.9:1) */
+  --cyan:#0affd5;          /* extremo luminoso del logo */
+  --error:#f87171;
+  --grad:linear-gradient(100deg,var(--em),var(--az));
+
+  --font:"Geist",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Geist Mono",ui-monospace,Menlo,monospace;
+
+  /* escala 1,25 sobre 16 px, cada tamaño con rol */
+  --t-xs:.8125rem;   /* 13: notas, etiquetas de formulario */
+  --t-0:1rem;        /* 16: cuerpo */
+  --t-1:1.25rem;     /* 20: entradilla */
+  --t-2:1.5625rem;   /* 25: títulos de ítem */
+  --t-3:clamp(1.9rem,3.2vw,2.4375rem);  /* 39: títulos de sección */
+  --t-4:clamp(2.6rem,6.4vw,5.9rem);     /* 95: titular del hero */
+
+  --s-1:4px;--s-2:8px;--s-3:12px;--s-4:16px;--s-5:24px;--s-6:32px;--s-7:48px;--s-8:64px;--s-9:96px;--s-10:128px;
+  --r-panel:20px; --r-field:12px; --r-pill:999px;   /* paneles 20, campos 12, botones píldora */
+  --max:1240px; --gutter:max(16px,4vw); --measure:62ch;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:84px;-webkit-text-size-adjust:100%}
+body{background:var(--ground);color:var(--ink);font-family:var(--font);font-size:var(--t-0);line-height:1.55;overflow-x:clip;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(90% 60% at 80% -10%,rgba(16,185,129,.10),transparent 60%),radial-gradient(70% 50% at 0% 10%,rgba(37,99,235,.08),transparent 60%)}
+body::after{content:"";position:fixed;inset:0;z-index:90;pointer-events:none;opacity:.32;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+main,header,footer{position:relative;z-index:1}
+.net{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+a{color:inherit}
+h1,h2,h3{font-weight:600;letter-spacing:-.035em;line-height:1.05;text-wrap:balance}
+p{text-wrap:pretty}
+:focus-visible{outline:2px solid var(--em);outline-offset:3px;border-radius:6px}
+.wrap{width:100%;max-width:calc(var(--max) + 2*var(--gutter));margin-inline:auto;padding-inline:var(--gutter)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+section{padding-block:var(--s-9)}
+.h2{font-size:var(--t-3);max-width:20ch}
+.lead{font-size:var(--t-1);color:var(--ink-muted);max-width:var(--measure);line-height:1.5}
+
+/* ---------- botones ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s-2);min-height:48px;padding:0 var(--s-6);border-radius:var(--r-pill);
+  font:600 var(--t-0)/1 var(--font);letter-spacing:-.01em;text-decoration:none;white-space:nowrap;cursor:pointer;border:0;
+  color:#04110c;background:var(--em);transition:transform .2s var(--ease),background-color .2s}
+.btn:hover{background:#34d399}
+.btn:active{transform:scale(.97)}
+.btn-ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line-strong)}
+.btn-ghost:hover{background:rgba(236,243,239,.06)}
+.link{color:var(--em);text-underline-offset:4px;font-weight:500}
+
+/* ---------- navegación ---------- */
+.nav{position:fixed;inset:0 0 auto;z-index:50;height:68px;display:flex;align-items:center;
+  background:rgba(6,8,7,.62);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:var(--s-6)}
+.logo-negocia{display:block;height:26px;width:84.8px}
+.nav nav{margin-left:auto}
+.nav ul{display:flex;gap:var(--s-6);list-style:none}
+.nav ul a{text-decoration:none;color:var(--ink-muted);font-size:.9375rem;transition:color .2s}
+.nav ul a:hover{color:var(--ink)}
+.nav .btn{min-height:40px;padding:0 var(--s-5);font-size:.9375rem}
+@media (max-width:860px){.nav ul{display:none}}
+
+/* ---------- hero ---------- */
+.hero{padding-block:calc(68px + var(--s-8)) var(--s-9)}
+.hero h1{font-size:var(--t-4);max-width:13ch;line-height:.98;letter-spacing:-.05em}
+.hero-grid{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:var(--s-7);margin-top:var(--s-7);align-items:start}
+.hero-copy{display:grid;gap:var(--s-6);align-content:start;padding-top:var(--s-2)}
+@media (max-width:960px){.hero-grid{grid-template-columns:minmax(0,1fr)}.hero-copy{order:-1}}
+
+/* ---------- traductor ---------- */
+.tr{position:relative;border-radius:var(--r-panel);background:linear-gradient(180deg,rgba(18,24,22,.9),rgba(12,16,15,.9));
+  box-shadow:inset 0 0 0 1px var(--line),inset 0 1px 0 rgba(255,255,255,.05),0 40px 100px -40px rgba(0,0,0,.7);padding:var(--s-5)}
+.tr-form label{display:block;font-size:var(--t-xs);color:var(--ink-muted);margin-bottom:var(--s-2)}
+.tr-row{display:flex;gap:var(--s-2)}
+.tr-row input{flex:1;min-width:0;height:48px;border-radius:var(--r-field);border:1px solid var(--line-strong);background:var(--ground);
+  color:var(--ink);font:400 var(--t-0) var(--font);padding:0 var(--s-4)}
+.tr-row input:focus-visible{outline:2px solid var(--em);outline-offset:1px}
+.tr-row .btn{min-height:48px;padding:0 var(--s-5)}
+.tr-stage{position:relative;margin-top:var(--s-5);padding-top:var(--s-1)}
+.tr-words{min-height:3.2em;font-size:var(--t-0);color:var(--ink-muted);line-height:1.6}
+.tr-words span{display:inline-block;margin-right:.28em;transition:color .3s,opacity .3s}
+.tr-words .kw{color:var(--ink);background:rgba(16,185,129,.14);box-shadow:inset 0 -1px 0 var(--em);border-radius:4px;padding:0 .2em}
+.tr-words .kw.sent{opacity:.45}
+.tr-core{position:relative;width:64px;height:64px;margin:var(--s-5) auto var(--s-8);display:grid;place-items:center}
+.tr-core svg{width:64px;height:64px;overflow:visible}
+.tr-core .ring{transform-origin:32px 32px;animation:spin 14s linear infinite}
+.tr-core.busy .ring{animation-duration:2.4s}
+@keyframes spin{to{transform:rotate(360deg)}}
+.tr-wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.tr-wires path{fill:none;stroke:var(--line-strong);stroke-width:1}
+.tr-wires path.hot{stroke:url(#wireGrad);stroke-width:1.6;stroke-dasharray:6 10;animation:flow 1s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-32}}
+.tr-mods{list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s-3);position:relative}
+.tr-mods li{position:relative;border-radius:14px;padding:var(--s-4);min-height:118px;background:var(--ground);box-shadow:inset 0 0 0 1px var(--line);
+  transition:box-shadow .5s var(--ease),transform .5s var(--ease),opacity .5s}
+.tr-mods h3{font-size:.9375rem;letter-spacing:-.01em;font-weight:600;margin-bottom:var(--s-2)}
+.tr-mods p{font-size:var(--t-xs);color:var(--ink-muted);line-height:1.45}
+.tr-mods li.on{box-shadow:inset 0 0 0 1px rgba(16,185,129,.6),0 16px 30px -18px rgba(0,0,0,.9);transform:translateY(-3px)}
+.tr-mods li.on p{color:var(--ink)}
+.tr-mods li.off{opacity:.5}
+.tr-mods li.flash{animation:flash .7s var(--ease)}
+@keyframes flash{0%{background:rgba(16,185,129,.28)}100%{background:var(--ground)}}
+.tr-sum{margin-top:var(--s-4);font-size:var(--t-xs);color:var(--ink-muted);min-height:1.5em}
+.tr-sum b{color:var(--ink);font-weight:600}
+.chip{position:absolute;left:0;top:0;z-index:5;pointer-events:none;white-space:nowrap;font:500 var(--t-xs)/1 var(--mono);color:#04110c;
+  padding:6px 9px;border-radius:var(--r-pill);background:var(--grad);box-shadow:0 6px 14px -6px rgba(0,0,0,.8)}
+@media (max-width:640px){.tr-mods{grid-template-columns:repeat(2,minmax(0,1fr))}.tr-core{margin-bottom:var(--s-7)}.tr-row .btn{padding:0 var(--s-4)}}
+
+/* ---------- capas ---------- */
+.capas-grid{display:grid;grid-template-columns:7fr 5fr;gap:var(--s-7);align-items:center;margin-top:var(--s-8)}
+.stack{position:relative;height:560px;perspective:1800px;--rx:56deg;--rz:-42deg;--gap:14px}
+.stack.open{--gap:92px}
+.stack-inner{position:absolute;left:50%;top:58%;width:0;height:0;transform-style:preserve-3d;
+  transform:rotateX(var(--rx)) rotateZ(var(--rz));transition:transform .8s var(--ease)}
+.plane{position:absolute;width:300px;height:300px;left:-150px;top:-150px;border-radius:var(--r-panel);
+  background:linear-gradient(145deg,rgba(22,30,27,.94),rgba(10,14,13,.94));box-shadow:inset 0 0 0 1px var(--line-strong),0 30px 60px -20px rgba(0,0,0,.8);
+  transform:translateZ(calc(var(--i) * var(--gap)));transition:transform 1.3s var(--ease),box-shadow .5s;transition-delay:calc(var(--i) * 70ms)}
+.plane svg{width:100%;height:100%;display:block}
+.plane .st{fill:none;stroke:rgba(214,240,228,.28);stroke-width:2}
+.plane .ac{fill:var(--em)}
+.plane .ab{fill:var(--az)}
+.plane.on{transform:translateZ(calc(var(--i) * var(--gap) + 34px));box-shadow:inset 0 0 0 1.5px var(--em),0 30px 60px -20px rgba(0,0,0,.8)}
+.plane.on .st{stroke:rgba(52,211,153,.7)}
+.plane .flowline{stroke-dasharray:8 10;animation:flow 1.6s linear infinite}
+.capas-list{list-style:none;display:grid;gap:var(--s-2)}
+.capa{display:grid;gap:var(--s-1);width:100%;text-align:left;cursor:pointer;color:inherit;font:inherit;background:transparent;border:0;
+  border-radius:14px;padding:var(--s-4) var(--s-5);box-shadow:inset 0 0 0 1px transparent;transition:background .3s,box-shadow .3s}
+.capa h3{font-size:var(--t-2);font-weight:600}
+.capa p{color:var(--ink-muted);max-width:40ch}
+.capa[aria-pressed="true"]{background:rgba(16,185,129,.07);box-shadow:inset 0 0 0 1px rgba(16,185,129,.35)}
+@media (max-width:960px){.capas-grid{grid-template-columns:1fr}.stack{height:380px}.plane{width:220px;height:220px;left:-110px;top:-110px}.stack.open{--gap:64px}}
+
+/* ---------- trazo ---------- */
+.trazo-head{display:grid;gap:var(--s-5)}
+.trazo-head .lead{max-width:56ch}
+.trazo-actions{display:flex;gap:var(--s-5);align-items:center;flex-wrap:wrap}
+.board-wrap{position:relative;max-width:1000px;margin:var(--s-7) 0 0 auto;border-radius:var(--r-panel);padding:var(--s-6);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.board-meta{display:flex;justify-content:space-between;gap:var(--s-4);flex-wrap:wrap;font-size:var(--t-xs);color:var(--ink-muted);margin-bottom:var(--s-4)}
+.board-meta b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.board{width:100%;height:auto;display:block;overflow:visible}
+.board .sheet{fill:#15110c;stroke:rgba(214,240,228,.25);stroke-width:4}
+.pz{transform-box:fill-box;transform-origin:center;transition:transform 1.25s var(--ease);transition-delay:calc(var(--i) * 90ms)}
+.pz rect{fill:#c9a27a;stroke:#6b4f33;stroke-width:5}
+.pz:nth-child(odd) rect{fill:#bf9670}
+.pz text{font:600 58px var(--font);fill:#2a1d10;text-anchor:middle;dominant-baseline:middle}
+.pz .num{font:500 44px var(--mono);fill:#2a1d10;opacity:0;transition:opacity .3s}
+.board.packed .pz{transform:none!important}
+.board.packed .pz .num{opacity:.75;transition:opacity .4s calc(1.9s + var(--i) * 80ms)}
+.cut{stroke:url(#sawGrad);stroke-width:7;stroke-linecap:round;stroke-dasharray:var(--len);stroke-dashoffset:var(--len);transition:stroke-dashoffset .4s linear}
+.board.packed .cut{stroke-dashoffset:0;transition-delay:calc(1.5s + var(--i) * 110ms)}
+.waste{fill:url(#hatch);stroke:rgba(214,240,228,.2);stroke-width:3;opacity:0;transition:opacity .4s}
+.board.packed .waste{opacity:1;transition:opacity .6s 2.6s}
+@media (max-width:640px){.pz text{display:none}.board-wrap{padding:var(--s-4)}}
+
+/* ---------- cristal (Glass Design) ---------- */
+.lens-stage{position:relative;overflow:hidden;border-radius:var(--r-panel);min-height:560px;display:grid;align-items:center;
+  background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);touch-action:pan-y;--x:62%;--y:48%;--r:140px;cursor:crosshair}
+.layer{padding:var(--s-8) var(--s-7);position:relative}
+.big{font-size:clamp(2.4rem,7vw,6.6rem);font-weight:650;letter-spacing:-.05em;line-height:1;max-width:14ch}
+.layer-in{position:absolute;inset:0;display:grid;align-items:center;pointer-events:none;
+  background:
+    linear-gradient(rgba(16,185,129,.16) 1px,transparent 1px) 0 0/28px 28px,
+    linear-gradient(90deg,rgba(16,185,129,.16) 1px,transparent 1px) 0 0/28px 28px,#03100c;
+  clip-path:circle(calc(var(--r) / 1.14) at var(--x) var(--y));transform-origin:var(--x) var(--y);transform:scale(1.14)}
+.layer-in .big{color:transparent;-webkit-text-stroke:1.5px var(--cyan)}
+.anno{position:absolute;font:500 13px/1.3 var(--mono);color:var(--cyan);padding-left:14px;max-width:24ch}
+.anno::before{content:"";position:absolute;left:0;top:.45em;width:7px;height:7px;border:1.5px solid var(--cyan);border-radius:50%}
+.lens{position:absolute;left:var(--x);top:var(--y);width:calc(var(--r)*2);height:calc(var(--r)*2);margin:calc(var(--r)*-1) 0 0 calc(var(--r)*-1);
+  border-radius:50%;touch-action:none;cursor:grab;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.35),inset 14px 18px 30px rgba(255,255,255,.10),inset -16px -20px 40px rgba(0,0,0,.35),0 30px 80px rgba(0,0,0,.55)}
+.lens::before{content:"";position:absolute;inset:10% 18% auto 14%;height:22%;border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,.22),transparent);filter:blur(2px);transform:rotate(-18deg)}
+.lens:focus-visible{outline-offset:6px;border-radius:50%}
+.glass-copy{display:grid;gap:var(--s-4);margin-top:var(--s-7);max-width:var(--measure)}
+@media (max-width:640px){.lens-stage{min-height:440px;--r:92px}.layer{padding:var(--s-7) var(--s-5)}.anno{font-size:11px}}
+
+/* ---------- proceso ---------- */
+.steps{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s-6);margin-top:var(--s-8);position:relative;--p:0}
+.steps::before,.steps::after{content:"";position:absolute;left:24px;right:calc((100% - 3 * var(--s-6)) / 4 - 24px);top:23px;height:2px;background:var(--line-strong)}
+.steps::after{background:var(--grad);transform-origin:left;transform:scaleX(var(--p));transition:transform 2.2s var(--ease)}
+.steps.go{--p:1}
+.step{position:relative;z-index:1;display:grid;gap:var(--s-3);align-content:start}
+.step .n{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--ground);box-shadow:inset 0 0 0 1.5px var(--line-strong);
+  font:600 var(--t-0) var(--font);font-variant-numeric:tabular-nums;transition:box-shadow .4s,color .4s;transition-delay:calc(var(--i)*.5s + .2s)}
+.steps.go .n{box-shadow:inset 0 0 0 1.5px var(--em);color:var(--em)}
+.step h3{font-size:var(--t-1);letter-spacing:-.02em;margin-top:var(--s-2)}
+.step p{color:var(--ink-muted);max-width:30ch}
+@media (max-width:860px){.steps{grid-template-columns:1fr;gap:var(--s-6)}
+  .steps::before,.steps::after{display:none}
+  .step:not(:last-child)::before,.step:not(:last-child)::after{content:"";position:absolute;left:23px;top:48px;bottom:calc(-1 * var(--s-6));width:2px;background:var(--line-strong)}
+  .step:not(:last-child)::after{background:var(--grad);transform-origin:top;transform:scaleY(var(--p));transition:transform .6s var(--ease) calc(var(--i) * .5s)}
+  .step{grid-template-columns:48px 1fr;column-gap:var(--s-5)}.step .n{grid-row:span 2}.step h3{margin-top:10px}}
+
+/* ---------- propuesta ---------- */
+.cta-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:var(--s-8);align-items:start}
+.cta-side{display:grid;gap:var(--s-6);position:sticky;top:calc(68px + var(--s-6))}
+.cta-head{display:grid;gap:var(--s-5)}
+.draft{border-radius:var(--r-panel);padding:var(--s-6);display:grid;gap:var(--s-5);
+  background:linear-gradient(180deg,rgba(18,24,22,.94),rgba(12,16,15,.94));box-shadow:inset 0 0 0 1px var(--line),0 30px 80px -40px rgba(0,0,0,.8);transition:box-shadow .5s}
+.draft.ready{box-shadow:inset 0 0 0 1px rgba(16,185,129,.6),0 30px 80px -40px rgba(0,0,0,.8)}
+.draft-top{display:flex;justify-content:space-between;align-items:center;gap:var(--s-4)}
+.draft-state{font-size:var(--t-xs);color:var(--ink-muted);transition:color .3s}
+.draft.ready .draft-state{color:var(--em);font-weight:600}
+.draft-rule{width:64px;height:2px;border-radius:2px;background:var(--grad)}
+.draft h3{font-size:var(--t-2);letter-spacing:-.03em}
+.draft dl{display:grid;gap:var(--s-4)}
+.draft dt{font-size:var(--t-xs);color:var(--ink-muted);margin-bottom:var(--s-1)}
+.draft dd{font-size:.9375rem;line-height:1.5;overflow-wrap:anywhere}
+.draft .row,.draft h3{border-radius:6px;padding:2px 6px;margin-inline:-6px}
+.draft .empty{color:var(--ink-muted)}
+.draft .tick{animation:tick .8s var(--ease)}
+@keyframes tick{0%{background:rgba(16,185,129,.2)}100%{background:transparent}}
+.pieces{display:flex;flex-wrap:wrap;gap:var(--s-2)}
+.pieces span{font-size:var(--t-xs);padding:4px 10px;border-radius:var(--r-pill);box-shadow:inset 0 0 0 1px var(--line);color:var(--ink-muted);transition:color .3s,background .3s,box-shadow .3s}
+.pieces span.on{color:var(--ink);background:rgba(16,185,129,.1);box-shadow:inset 0 0 0 1px rgba(16,185,129,.6)}
+.pieces [data-m="nose"]{display:none}
+.pieces.nose [data-m="nose"]{display:inline-block}
+.pieces.nose span:not([data-m="nose"]){display:none}
+
+form.prop{display:grid;gap:var(--s-7);padding:var(--s-7);border-radius:var(--r-panel);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+fieldset.grp{border:0;min-width:0}
+.grp legend{float:left;width:100%;font-size:var(--t-1);font-weight:600;letter-spacing:-.02em;margin-bottom:var(--s-4)}
+.grp-body{clear:both;display:grid;gap:var(--s-5)}
+.field{display:grid;gap:var(--s-2)}
+.field label,.lbl{font-size:.9375rem;font-weight:500}
+.hint{font-size:var(--t-xs);color:var(--ink-muted);font-weight:400}
+.field input,.field textarea{width:100%;border-radius:var(--r-field);border:1px solid var(--line-strong);background:var(--ground);color:var(--ink);
+  font:400 var(--t-0)/1.5 var(--font);padding:var(--s-3) var(--s-4);min-height:48px}
+.field ::placeholder{color:var(--ink-muted);opacity:1}
+.field textarea{min-height:110px;resize:vertical}
+.field input:focus-visible,.field textarea:focus-visible{outline:2px solid var(--em);outline-offset:1px}
+.field [aria-invalid="true"]{border-color:var(--error)}
+.opts{display:flex;flex-wrap:wrap;gap:var(--s-2)}
+.opt{position:relative;display:inline-flex}
+.opt input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.opt span{display:inline-flex;align-items:center;gap:var(--s-2);min-height:44px;padding:0 var(--s-4);border-radius:var(--r-pill);
+  box-shadow:inset 0 0 0 1px var(--line-strong);color:var(--ink-muted);font-size:.9375rem;transition:color .2s,background .2s,box-shadow .2s;pointer-events:none}
+.opt:hover span{color:var(--ink)}
+.opt input:checked + span{color:var(--ink);background:rgba(16,185,129,.12);box-shadow:inset 0 0 0 1px var(--em)}
+.opt input:checked + span::before{content:"";width:5px;height:10px;border:solid var(--em);border-width:0 2px 2px 0;transform:translateY(-2px) rotate(45deg)}
+.opt input:focus-visible + span{outline:2px solid var(--em);outline-offset:2px}
+.err{font-size:var(--t-xs);color:var(--error);display:flex;gap:var(--s-2);align-items:flex-start}
+.err:empty{display:none}
+.err::before{content:"!";flex:none;display:grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--error);color:var(--ground);font-weight:700;font-size:11px;line-height:1}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-5)}
+.send{display:flex;flex-wrap:wrap;gap:var(--s-3);align-items:center}
+.fine{font-size:var(--t-xs);color:var(--ink-muted);margin-top:calc(var(--s-4) * -1)}
+.form-status{font-size:var(--t-xs);color:var(--ink);margin-top:calc(var(--s-5) * -1)}
+.form-status:empty{display:none}
+@media (max-width:860px){
+  .cta-grid{grid-template-columns:minmax(0,1fr);gap:var(--s-6)}
+  .cta-side{display:contents}.cta-head{order:1}form.prop{order:2}.draft{order:3}
+  .two{grid-template-columns:1fr}form.prop{padding:var(--s-5)}}
+
+footer{padding-block:var(--s-8);border-top:1px solid var(--line);font-size:var(--t-xs);color:var(--ink-muted)}
+footer .wrap{display:flex;gap:var(--s-5);align-items:center;flex-wrap:wrap;justify-content:space-between}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important;transition-delay:0s!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs><linearGradient gradientUnits="userSpaceOnUse" id="negociagrad" x1="1543.85" x2="1874.85" y1="1003.54" y2="1005.21">
+    <stop offset="0" stop-color="rgb(10,255,213)"/><stop offset="1" stop-color="rgb(43,83,255)"/>
+  </linearGradient></defs>
+  <symbol id="logomark-negocia" viewBox="160 768 1735 532">
+    <path d="M 822.088 941.392 C 856.471 941.556 885.677 949.056 903.566 980.81 C 906.603 972.946 911.393 965.879 917.571 960.144 C 933.452 945.587 951.755 944.263 971.963 944.934 C 971.372 990.662 971.986 1036.47 971.823 1082.2 C 971.667 1125.89 976.396 1167.22 953.72 1206.92 C 912.281 1279.48 794.344 1265.05 733.573 1229.59 L 742.112 1215.87 C 748.652 1205.34 755.274 1194.85 761.977 1184.42 C 804.628 1210.97 888.787 1227.76 901.002 1157.46 C 902.35 1149.7 902.044 1141.37 902.021 1133.46 C 882.179 1154 868.33 1160.84 839.053 1163.84 C 731.269 1174.88 683.117 1054.57 745.201 975.968 C 762.908 953.55 793.369 943.343 822.088 941.392 z" fill="rgb(255,255,255)"/>
+    <path d="M 844.723 995.478 C 876.412 995.535 902.052 1021.27 901.989 1052.96 C 901.927 1084.65 876.184 1110.29 844.496 1110.22 C 812.814 1110.15 787.184 1084.42 787.247 1052.74 C 787.31 1021.05 813.041 995.42 844.723 995.478 z" fill="rgb(0,0,0)"/>
+    <path d="M 180.784 834.676 C 224.644 841.671 251.904 883.128 278.809 914.51 C 314.695 956.368 347.342 1002.2 383.51 1043.65 L 383.702 970.008 C 383.668 954.273 382.901 932.367 385.086 917.449 C 386.73 905.778 390.349 894.472 395.786 884.016 C 409.369 858.05 429.667 843.402 457.094 834.999 L 457.079 1152.57 L 457.145 1175.81 C 450.924 1177.17 444.517 1177.47 438.197 1176.68 C 396.107 1171.74 361.869 1121.81 336.347 1091.26 C 308.512 1058.22 281.076 1024.84 254.043 991.137 C 252.964 1051.39 253.79 1114.1 253.833 1174.55 L 180.882 1174.52 L 180.784 834.676 z" fill="rgb(255,255,255)"/>
+    <path d="M 1109.55 937.149 C 1177.4 935.062 1234.05 988.437 1236.01 1056.28 C 1237.96 1124.13 1184.47 1180.68 1116.62 1182.5 C 1048.96 1184.32 992.603 1131.01 990.654 1063.35 C 988.704 995.695 1041.9 939.231 1109.55 937.149 z" fill="rgb(255,255,255)"/>
+    <path d="M 1105.84 1000.25 C 1183.25 994.326 1191.71 1105.87 1121.81 1119.04 C 1114.24 1119.34 1107.95 1119.55 1100.41 1117.86 C 1060.35 1108.87 1046.55 1056.68 1067.37 1024.45 C 1076.73 1009.96 1089.38 1003.54 1105.84 1000.25 z" fill="rgb(0,0,0)"/>
+    <path d="M 1652.38 928.292 C 1657.15 916.556 1662.15 904.92 1667.4 893.391 C 1681.24 862.185 1690.91 836.351 1730.94 835.383 C 1759.07 902.899 1787.63 970.233 1816.62 1037.38 C 1835.74 1082 1855.52 1130.46 1875.42 1174.38 L 1814.08 1174.89 C 1807.2 1158.4 1800.22 1141.05 1792.9 1124.82 C 1783.17 1125.62 1781.26 1126.34 1773.12 1119.1 C 1757.95 1105.62 1743.72 1087.54 1728.76 1074.17 C 1723 1079.21 1687.7 1116.32 1689.7 1088.73 C 1689.94 1085.3 1722.69 1052.13 1728.96 1049.52 C 1739.46 1049.31 1752.14 1058.93 1767.41 1061.74 C 1750.37 1016.47 1727.49 969.581 1711.5 924.337 C 1699.69 955.209 1685.74 985.694 1672.97 1016.21 C 1671.08 1020.73 1668.87 1025.93 1666.53 1030.2 C 1663.38 1038.95 1654.23 1054.96 1656.01 1061.31 C 1668.58 1071.09 1701.09 1041.6 1712.1 1054.88 C 1707.04 1064.93 1682.05 1081.14 1683.99 1094.65 C 1696.85 1117.1 1717.48 1089.63 1728.45 1080.96 C 1730.2 1082.75 1735.03 1087.44 1736.32 1089.17 C 1740.07 1100.91 1743.92 1093.56 1742.8 1104.52 C 1741.11 1121.04 1740.87 1109.21 1732.48 1108.12 C 1730.2 1111.12 1729.82 1110.52 1730.13 1113.3 C 1737.04 1119.27 1744.47 1127.79 1750.6 1133.41 C 1773.06 1153.99 1751 1164.92 1736.16 1142.49 C 1735.12 1140.92 1727.32 1133.55 1725.36 1131.25 C 1721.37 1128.63 1722 1126.12 1715.43 1124.44 L 1714.61 1125.3 C 1721.11 1135.32 1747.18 1153.72 1740.29 1163.87 C 1726.61 1170.69 1718.65 1145.61 1707.21 1143.64 C 1705.03 1143.27 1703.43 1142.47 1701.9 1140.9 C 1698.62 1126.58 1698.58 1131.32 1687.2 1127.32 C 1681.39 1110.23 1679.64 1118.69 1669.02 1115.39 C 1654.09 1097.6 1649.14 1112.88 1638.16 1123.44 C 1634.75 1126.72 1630.4 1125.38 1625.97 1124.64 C 1618.78 1141.14 1611.67 1157.68 1604.64 1174.25 L 1542.73 1174.03 L 1614.42 1012.96 C 1624.67 989.72 1640.84 949.723 1652.38 928.292 z" fill="url(#negociagrad)"/>
+    <path d="M 1730.13 1113.3 C 1737.04 1119.27 1744.47 1127.79 1750.6 1133.41 C 1773.06 1153.99 1751 1164.92 1736.16 1142.49 C 1735.12 1140.92 1727.32 1133.55 1725.36 1131.25 C 1731.61 1131.79 1742.79 1149.84 1741.39 1139.76 C 1740.74 1135.05 1741.49 1135.21 1742.6 1130.29 L 1742.92 1128.91 C 1737.4 1123.4 1733.09 1120.4 1730.13 1113.3 z" fill="rgb(37,99,235)"/>
+    <path d="M 575.45 942.304 C 629.692 936.148 681.362 960.543 703.004 1012.23 C 712.413 1034.7 713.769 1054.33 712.256 1078.36 L 542.755 1078.52 C 560.729 1133.33 619.2 1131.14 659.472 1102.88 L 671.211 1115.27 L 695.067 1139.81 C 635.565 1210.68 486.381 1179.23 473.558 1080.18 C 464.112 1007.21 503.403 953.592 575.45 942.304 z" fill="rgb(255,255,255)"/>
+    <path d="M 587.917 994.281 C 622.554 991.964 638.202 1005.05 646.452 1037.87 L 604.038 1037.81 C 583.384 1037.71 562.73 1037.74 542.076 1037.89 C 549.07 1012.85 561.133 998.794 587.917 994.281 z" fill="rgb(0,0,0)"/>
+    <path d="M 1365.73 941.454 C 1418.25 941.878 1444.14 952.105 1474.11 996.442 C 1458.07 1006.46 1439.43 1017.09 1423.02 1026.37 C 1419.09 1020.18 1416.37 1015.79 1410.79 1010.9 C 1387.57 990.3 1346.16 993.886 1326.85 1018.25 C 1292.69 1061.35 1322.85 1126.92 1380.58 1120.02 C 1399.53 1117.76 1410.45 1107.83 1421.33 1093.69 L 1445.94 1108.87 C 1455.71 1115.12 1464.93 1121.05 1475.03 1126.77 C 1472.53 1129.94 1469.94 1133.04 1467.27 1136.06 C 1420.47 1188.87 1333.46 1192.52 1281.59 1145.81 C 1258.56 1125.01 1244.83 1095.84 1243.48 1064.84 C 1239.59 989.012 1293.56 944.538 1365.73 941.454 z" fill="rgb(255,255,255)"/>
+    <path d="M 1532.19 913.398 L 1547.91 913.304 C 1546.44 971.346 1548.51 1030.44 1547.75 1088.67 C 1547.2 1131.14 1548.1 1166.71 1494.73 1175.09 L 1476.76 1175.26 L 1476.55 1023.23 C 1476.66 1002.93 1475.22 979.157 1477.97 959.375 C 1481.86 931.452 1505.82 915.266 1532.19 913.398 z" fill="rgb(16,253,220)"/>
+    <path d="M 1518.07 798.017 C 1527.66 797.769 1530.74 800.429 1533.38 809.298 C 1542.63 811.674 1553.71 813.625 1563.18 815.531 C 1563.34 815.302 1563.49 815.073 1563.64 814.844 L 1564.43 813.72 C 1581.8 788.529 1601.27 824.4 1581.47 832.973 C 1577.15 834.843 1570.24 831.672 1566.46 829.118 C 1556.82 834.389 1533.68 845.545 1526.94 852.452 C 1526.58 857.201 1527.1 858.743 1524.07 861.768 C 1520.43 862.584 1516.38 861.406 1512.62 860.692 C 1509.22 863.34 1497.61 870.445 1497.18 873.947 L 1498.94 875.719 C 1506.78 875.867 1519.52 873.373 1527.28 871.478 C 1528.47 869.876 1528.95 868.464 1529.6 866.591 C 1536.3 868.119 1543.35 872.63 1549.93 875.232 C 1555.45 877.415 1560.56 879.032 1566.25 880.735 C 1572.95 873.604 1584.06 871.857 1589.07 881.369 C 1590.53 884.15 1590.78 887.412 1589.76 890.383 C 1588.04 895.35 1584.47 897.14 1580.08 899.312 C 1562.49 898.766 1570.88 889.731 1564.2 885.37 C 1544.62 872.573 1518.69 876.917 1498.63 880.55 C 1490.79 902.906 1468.78 899.288 1466.24 883.092 C 1465.56 878.499 1466.73 873.825 1469.48 870.087 C 1476.29 860.94 1485.92 863.242 1493.89 869.218 C 1498.53 865.934 1510.16 860.132 1511.05 854.965 C 1508.52 847.169 1499.37 840.342 1492.44 836.097 C 1489.38 834.023 1486.15 835.569 1482.29 837.383 C 1466.88 844.619 1458.39 830.163 1466.6 818.14 C 1471.86 810.44 1480.88 812.076 1488.47 818.819 C 1519.93 808.969 1501.21 810.028 1518.07 798.017 z" fill="rgb(255,255,255)"/>
+    <path d="M 1532.55 813.102 C 1538.9 815.594 1557.49 817.429 1561.97 819.948 C 1573.59 826.467 1529.93 841.742 1528.19 845.735 C 1527.32 847.723 1517.64 847.816 1514.67 848.172 C 1514.41 848.223 1514.15 848.275 1513.89 848.327 C 1512.78 847.831 1491.76 830.159 1490.91 829.085 C 1484.43 820.918 1506.76 816.754 1511.24 815.057 C 1512.73 816.116 1513.61 817.613 1515.3 818.633 C 1521.07 822.113 1528.42 820.899 1531.61 814.766 L 1532.55 813.102 z" fill="rgb(0,0,0)"/>
+    <path d="M 1736.32 1089.17 C 1742.77 1095.51 1776.93 1127.62 1777.23 1134.51 C 1777.31 1136.38 1777.13 1138.37 1775.77 1139.79 C 1774.23 1141.4 1772.18 1141.97 1770 1141.99 C 1763.98 1142.06 1758.84 1134.99 1755.02 1130.99 C 1747.76 1123.39 1738.97 1116.27 1732.48 1108.12 C 1740.87 1109.21 1741.11 1121.04 1742.8 1104.52 C 1743.92 1093.56 1740.07 1100.91 1736.32 1089.17 z" fill="rgb(37,99,235)"/>
+    <path d="M 1672.16 1119.57 C 1683.07 1121.11 1684.75 1127.25 1678.15 1134.86 C 1672.8 1141.03 1670.47 1146.61 1663.52 1151.69 C 1640.83 1152.16 1666.88 1125.82 1672.16 1119.57 z" fill="rgb(16,253,220)"/>
+    <path d="M 1686.42 1132.91 C 1709.5 1131.66 1686.18 1156.02 1680.6 1162.13 C 1657.43 1161.48 1679.63 1139.81 1686.42 1132.91 z" fill="rgb(16,253,220)"/>
+    <path d="M 1655.08 1111.54 C 1669.38 1114.15 1665 1122.92 1658.04 1130.52 C 1654.58 1134.3 1653.34 1137.21 1649.05 1140.84 L 1648.62 1140.81 C 1625.98 1139.55 1648.89 1117.99 1655.08 1111.54 z" fill="rgb(16,253,220)"/>
+    <path d="M 1699.88 1146.77 C 1701.61 1147.28 1703.59 1147.91 1705.23 1148.7 C 1715.23 1153.52 1699.46 1169.71 1694.09 1173.62 C 1674.91 1169.76 1691.65 1153.08 1699.88 1146.77 z" fill="rgb(16,253,220)"/>
+    <path d="M 1714.18 1154.35 C 1723.78 1161.48 1729.88 1166.79 1719.79 1175.12 C 1711.88 1172.58 1712.95 1172.26 1707.72 1165.84 C 1711.5 1160.78 1712.14 1160.14 1714.18 1154.35 z" fill="rgb(35,173,243)"/>
+  </symbol>
+</svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a href="#top" aria-label="NegocIA, inicio"><svg class="logo-negocia" role="img" aria-label="NegocIA"><use href="#logomark-negocia"/></svg></a>
+    <nav aria-label="Principal"><ul>
+      <li><a href="#capas">Qué construimos</a></li>
+      <li><a href="#trazo">Casos</a></li>
+      <li><a href="#proceso">Cómo trabajamos</a></li>
+    </ul></nav>
+    <a class="btn btn-ghost" href="#propuesta" data-carry>Solicitar propuesta</a>
+  </div>
+</header>
+
+<main id="top">
+<!-- ================= HERO ================= -->
+<section class="hero" aria-labelledby="h1">
+  <div class="wrap">
+    <h1 id="h1">Tu negocio, traducido a sistema.</h1>
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <p class="lead">Páginas web, automatizaciones, bases de datos y sistemas con IA para negocios en Venezuela y afuera.</p>
+        <div><a class="btn" href="#propuesta" data-carry>Solicitar propuesta</a></div>
+      </div>
+
+      <div class="tr" id="tr">
+        <form class="tr-form" id="tr-form">
+          <label for="tr-q">Escribe lo que frena tu negocio y mira en qué se convierte</label>
+          <div class="tr-row">
+            <input id="tr-q" name="q" autocomplete="off" maxlength="140" value="Mis clientes piden cotización por WhatsApp y respondo todo a mano">
+            <button class="btn btn-ghost" type="submit">Traducir</button>
+          </div>
+        </form>
+        <div class="tr-stage" id="tr-stage">
+          <svg class="tr-wires" id="tr-wires" aria-hidden="true">
+            <defs><linearGradient id="wireGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0affd5"/><stop offset="1" stop-color="#2563eb"/></linearGradient></defs>
+          </svg>
+          <p class="tr-words" id="tr-words" aria-hidden="true"></p>
+          <div class="tr-core" id="tr-core" aria-hidden="true">
+            <svg viewBox="0 0 64 64">
+              <circle class="ring" cx="32" cy="32" r="30" fill="none" stroke="url(#wireGrad)" stroke-width="1.2" stroke-dasharray="3 7"/>
+              <g stroke="rgba(214,240,228,.45)" stroke-width="1"><path d="M20 22L32 32L44 20M20 44L32 32L46 42M32 32V14"/></g>
+              <circle cx="32" cy="32" r="6" fill="#10b981"/><circle cx="20" cy="22" r="3" fill="#ecf3ef"/><circle cx="44" cy="20" r="3" fill="#ecf3ef"/>
+              <circle cx="20" cy="44" r="3" fill="#ecf3ef"/><circle cx="46" cy="42" r="3" fill="#2563eb"/><circle cx="32" cy="14" r="3" fill="#ecf3ef"/>
+            </svg>
+          </div>
+          <ul class="tr-mods" id="tr-mods">
+            <li data-m="web"><h3>Página web</h3><p></p></li>
+            <li data-m="ia"><h3>Sistema con IA</h3><p></p></li>
+            <li data-m="auto"><h3>Automatización</h3><p></p></li>
+            <li data-m="db"><h3>Base de datos</h3><p></p></li>
+          </ul>
+        </div>
+        <p class="tr-sum" id="tr-sum" aria-live="polite"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CAPAS ================= -->
+<section id="capas" aria-labelledby="capas-h">
+  <div class="wrap">
+    <h2 class="h2" id="capas-h">Cuatro capas, un mismo equipo.</h2>
+    <p class="lead" style="margin-top:var(--s-5)">Quien levanta tu proyecto es quien después le suma IA. Sin traspasos entre proveedores.</p>
+    <div class="capas-grid">
+      <div class="stack" id="stack" aria-hidden="true">
+        <div class="stack-inner" id="stack-inner">
+          <div class="plane" style="--i:0" data-i="3">
+            <svg viewBox="0 0 300 300"><g class="st">
+              <rect x="40" y="60" width="220" height="180" rx="10"/><path d="M40 96H260M40 132H260M40 168H260M40 204H260M113 60V240M186 60V240"/></g>
+              <rect class="ac" x="116" y="99" width="67" height="30" rx="4"/><rect class="ab" x="189" y="171" width="68" height="30" rx="4" opacity=".8"/></svg>
+          </div>
+          <div class="plane" style="--i:1" data-i="2">
+            <svg viewBox="0 0 300 300"><g class="st">
+              <rect x="40" y="70" width="60" height="44" rx="8"/><rect x="200" y="70" width="60" height="44" rx="8"/><rect x="120" y="190" width="60" height="44" rx="8"/>
+              <path class="flowline" d="M100 92H200M230 114V160Q230 212 180 212M120 212Q70 212 70 160V114"/></g>
+              <circle class="ac" cx="150" cy="92" r="7"/></svg>
+          </div>
+          <div class="plane" style="--i:2" data-i="1">
+            <svg viewBox="0 0 300 300"><g class="st">
+              <path d="M70 80L150 150L230 70M70 220L150 150L235 215M150 150V60M150 150L60 150M150 150L245 150"/>
+              <circle cx="70" cy="80" r="9"/><circle cx="230" cy="70" r="9"/><circle cx="70" cy="220" r="9"/><circle cx="150" cy="60" r="9"/><circle cx="60" cy="150" r="9"/><circle cx="245" cy="150" r="9"/></g>
+              <circle class="ac" cx="150" cy="150" r="16"/><circle class="ab" cx="235" cy="215" r="10"/></svg>
+          </div>
+          <div class="plane" style="--i:3" data-i="0">
+            <svg viewBox="0 0 300 300"><g class="st">
+              <rect x="50" y="56" width="200" height="188" rx="12"/><path d="M50 88H250"/><circle cx="68" cy="72" r="4"/><circle cx="82" cy="72" r="4"/><circle cx="96" cy="72" r="4"/>
+              <path d="M74 118H180M74 138H150M74 186H226M74 206H200M74 226H212"/></g>
+              <rect class="ac" x="74" y="152" width="84" height="20" rx="10"/></svg>
+          </div>
+        </div>
+      </div>
+      <ol class="capas-list" id="capas-list">
+        <li><button class="capa" type="button" aria-pressed="false" data-i="0"><h3>Página web</h3><p>Lo que ven tus clientes. Rápida, clara y hecha para vender.</p></button></li>
+        <li><button class="capa" type="button" aria-pressed="false" data-i="1"><h3>Sistema con IA</h3><p>Lo que piensa. Cotiza, responde y clasifica sin que estés encima.</p></button></li>
+        <li><button class="capa" type="button" aria-pressed="false" data-i="2"><h3>Automatizaciones</h3><p>Lo que se mueve solo. WhatsApp, correos, facturas y reportes.</p></button></li>
+        <li><button class="capa" type="button" aria-pressed="false" data-i="3"><h3>Base de datos</h3><p>Lo que recuerda. Clientes, pedidos e inventario en un solo lugar.</p></button></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TRAZO ================= -->
+<section id="trazo" aria-labelledby="trazo-h">
+  <div class="wrap">
+    <div class="trazo-head">
+      <h2 class="h2" id="trazo-h">Trazo: nuestro propio producto, ya en producción.</h2>
+      <p class="lead">Las carpinterías pierden material cortando a ojo. Trazo calcula cómo sacar todas las piezas de un tablero y dibuja el plano de corte, con el orden de cada corte.</p>
+      <div class="trazo-actions">
+        <button class="btn btn-ghost" type="button" id="board-btn">Calcular plano</button>
+        <a class="link" href="https://optimizador-cortes-mdf.vercel.app" target="_blank" rel="noopener">Abrir Trazo</a>
+      </div>
+    </div>
+    <figure class="board-wrap">
+      <div class="board-meta"><span>Tablero de MDF 2440 × 1830 mm, 10 piezas de un mueble de cocina</span><span>Aprovechamiento en este ejemplo: <b>93 %</b></span></div>
+      <svg class="board" id="board" viewBox="-20 -20 2480 1870" role="img" aria-labelledby="board-cap">
+        <defs>
+          <linearGradient id="sawGrad" x1="0" x2="1"><stop offset="0" stop-color="#0affd5"/><stop offset="1" stop-color="#2563eb"/></linearGradient>
+          <pattern id="hatch" width="28" height="28" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="28" height="28" fill="#15110c"/><path d="M0 0V28" stroke="rgba(214,240,228,.18)" stroke-width="6"/></pattern>
+        </defs>
+        <rect class="sheet" x="0" y="0" width="2440" height="1830" rx="6"/>
+        <g id="pieces"></g>
+        <g id="cuts"></g>
+      </svg>
+      <figcaption class="sr" id="board-cap">Plano de corte de ejemplo: 10 piezas acomodadas en un tablero de 2440 por 1830 milímetros, con 93 por ciento de aprovechamiento.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= CRISTAL ================= -->
+<section id="glass" aria-labelledby="glass-h">
+  <div class="wrap">
+    <div class="lens-stage" id="lens-stage">
+      <div class="layer"><p class="big" aria-hidden="true">Cristalería y remodelación a la medida de tu espacio.</p></div>
+      <div class="layer layer-in" aria-hidden="true">
+        <p class="big">Cristalería y remodelación a la medida de tu espacio.</p>
+        <span class="anno" style="left:8%;top:18%">Catálogo por tipo de proyecto</span>
+        <span class="anno" style="left:58%;top:22%">Cotizador con IA: medidas y tipo de vidrio</span>
+        <span class="anno" style="left:70%;top:50%">Botón directo a WhatsApp</span>
+        <span class="anno" style="left:12%;top:72%">Formulario validado en servidor</span>
+        <span class="anno" style="left:44%;top:78%">Panel de pedidos con base de datos</span>
+        <span class="anno" style="left:82%;top:66%">SEO local</span>
+      </div>
+      <div class="lens" id="lens" tabindex="0" role="group" aria-roledescription="cristal movible" aria-label="Cristal. Muévelo con las flechas para ver cómo está construido el sitio."></div>
+    </div>
+    <div class="glass-copy">
+      <h2 class="h2" id="glass-h">Por fuera, un sitio impecable. Por dentro, un sistema.</h2>
+      <p class="lead">Así construimos el sitio de Glass Design, empresa de cristalería y remodelación: catálogo, contacto directo a WhatsApp y un cotizador con IA. Mueve el cristal para ver por dentro.</p>
+      <ul class="sr"><li>Catálogo por tipo de proyecto</li><li>Cotizador con IA: medidas y tipo de vidrio</li><li>Botón directo a WhatsApp</li><li>Formulario validado en servidor</li><li>Panel de pedidos con base de datos</li><li>SEO local</li></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PROCESO ================= -->
+<section id="proceso" aria-labelledby="proceso-h">
+  <div class="wrap">
+    <h2 class="h2" id="proceso-h">Sin sorpresas, de la primera conversación a la entrega.</h2>
+    <ol class="steps" id="steps">
+      <li class="step" style="--i:0"><span class="n">1</span><h3>Conversamos</h3><p>Nos cuentas qué frena tu negocio, sin tecnicismos.</p></li>
+      <li class="step" style="--i:1"><span class="n">2</span><h3>Te damos dos caminos</h3><p>Cada propuesta trae dos opciones con precio cerrado en dólares, qué incluye y qué no.</p></li>
+      <li class="step" style="--i:2"><span class="n">3</span><h3>Arrancamos</h3><p>Empezamos con el 50 % de anticipo.</p></li>
+      <li class="step" style="--i:3"><span class="n">4</span><h3>Entregamos</h3><p>El otro 50 % se paga contra la entrega final.</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ================= PROPUESTA ================= -->
+<section id="propuesta" aria-labelledby="prop-h">
+  <div class="wrap cta-grid">
+    <div class="cta-side">
+      <div class="cta-head">
+        <h2 class="h2" id="prop-h">Cuéntanos qué frena tu negocio.</h2>
+        <p class="lead">Con esto armamos tu propuesta: dos caminos, precio cerrado en dólares y qué incluye cada uno.</p>
+      </div>
+      <aside class="draft" id="draft" aria-label="Vista previa de tu solicitud">
+        <div class="draft-top">
+          <svg class="logo-negocia" role="img" aria-label="NegocIA"><use href="#logomark-negocia"/></svg>
+          <span class="draft-state" id="d-state" aria-live="polite"></span>
+        </div>
+        <div class="draft-rule"></div>
+        <h3 id="d-para" class="empty">Propuesta para tu negocio</h3>
+        <dl>
+          <div><dt>Lo que nos contaste</dt><dd id="d-need" class="row empty">Aquí aparece lo que frena tu negocio.</dd></div>
+          <div><dt>Piezas en juego</dt><dd class="row"><div class="pieces" id="d-pieces">
+            <span data-m="web">Página web</span><span data-m="ia">Sistema con IA</span><span data-m="auto">Automatización</span><span data-m="db">Base de datos</span><span data-m="nose">Aún sin elegir</span>
+          </div></dd></div>
+          <div><dt>Para cuándo</dt><dd id="d-plazo" class="row empty">Sin fecha todavía</dd></div>
+          <div><dt>Te respondemos por</dt><dd id="d-canal" class="row">WhatsApp</dd></div>
+          <div><dt>Lo que vas a recibir</dt><dd>Dos caminos con precio cerrado, qué incluye y qué no.</dd></div>
+        </dl>
+      </aside>
+    </div>
+
+    <form class="prop" id="prop" novalidate>
+      <fieldset class="grp"><legend>Qué quieres resolver</legend><div class="grp-body">
+        <div class="field"><label for="f-necesidad">Cuéntalo con tus palabras</label>
+          <textarea id="f-necesidad" name="necesidad" aria-describedby="h-necesidad e-necesidad" placeholder="Por ejemplo: mis clientes piden cotización por WhatsApp y respondo todo a mano"></textarea>
+          <p class="hint" id="h-necesidad">Con una frase basta. Si usaste el traductor de arriba, ya viene escrita.</p><p class="err" id="e-necesidad"></p></div>
+        <div class="field"><p class="lbl" id="l-piezas">Piezas que crees necesitar <span class="hint">(las marcamos según lo que escribes, puedes cambiarlas)</span></p>
+          <div class="opts" role="group" aria-labelledby="l-piezas">
+            <label class="opt"><input type="checkbox" name="piezas" value="web"><span>Página web</span></label>
+            <label class="opt"><input type="checkbox" name="piezas" value="ia"><span>Sistema con IA</span></label>
+            <label class="opt"><input type="checkbox" name="piezas" value="auto"><span>Automatización</span></label>
+            <label class="opt"><input type="checkbox" name="piezas" value="db"><span>Base de datos</span></label>
+            <label class="opt"><input type="checkbox" name="piezas" value="nose"><span>No estoy seguro</span></label>
+          </div></div>
+      </div></fieldset>
+
+      <fieldset class="grp"><legend>Para cuándo lo necesitas</legend><div class="grp-body">
+        <div class="opts">
+          <label class="opt"><input type="radio" name="plazo" value="Lo antes posible"><span>Lo antes posible</span></label>
+          <label class="opt"><input type="radio" name="plazo" value="Este mes"><span>Este mes</span></label>
+          <label class="opt"><input type="radio" name="plazo" value="En los próximos meses"><span>En los próximos meses</span></label>
+          <label class="opt"><input type="radio" name="plazo" value="Estoy explorando"><span>Estoy explorando</span></label>
+        </div>
+      </div></fieldset>
+
+      <fieldset class="grp"><legend>Cómo te contactamos</legend><div class="grp-body">
+        <div class="two">
+          <div class="field"><label for="f-nombre">Tu nombre</label><input id="f-nombre" name="nombre" autocomplete="name" aria-describedby="e-nombre"><p class="err" id="e-nombre"></p></div>
+          <div class="field"><label for="f-negocio">Tu negocio <span class="hint">(opcional)</span></label><input id="f-negocio" name="negocio" autocomplete="organization"></div>
+        </div>
+        <div class="field"><p class="lbl" id="l-canal">Prefieres que te respondamos por</p>
+          <div class="opts" role="radiogroup" aria-labelledby="l-canal">
+            <label class="opt"><input type="radio" name="canal" value="whatsapp" checked><span>WhatsApp</span></label>
+            <label class="opt"><input type="radio" name="canal" value="correo"><span>Correo</span></label>
+          </div></div>
+        <div class="field"><label for="f-contacto" id="l-contacto">Tu WhatsApp</label>
+          <input id="f-contacto" name="contacto" aria-describedby="h-contacto e-contacto">
+          <p class="hint" id="h-contacto"></p><p class="err" id="e-contacto"></p></div>
+      </div></fieldset>
+
+      <div class="send"><button class="btn" type="submit">Solicitar propuesta</button><button class="btn btn-ghost" type="button" id="copy" hidden>Copiar solicitud</button></div>
+      <p class="fine">Primero conversamos. El precio llega cerrado en la propuesta, sin sorpresas.</p>
+      <p class="form-status" id="form-status" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <svg class="logo-negocia" role="img" aria-label="NegocIA"><use href="#logomark-negocia"/></svg>
+    <span>Web, automatización, bases de datos y sistemas con IA. Cotizamos en dólares.</span>
+    <span>© 2026 NegocIA</span>
+  </div>
+</footer>
+
+<script>
+(() => {
+const CONTACT_EMAIL = 'isaac150305@gmail.com'; // mismo correo de las propuestas de NegocIA; cambiar al tener dominio propio
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = (s, r = document) => r.querySelector(s);
+const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9ñ]/g, '');
+const onView = (el, cb, opts = {threshold: .35}) => {
+  const io = new IntersectionObserver(es => es.forEach(e => cb(e.isIntersecting, io)), opts);
+  io.observe(el); return io;
+};
+
+/* ================= TRADUCTOR ================= */
+// Prefijo de palabra → pieza + lo que construiríamos. El primer acierto por pieza define su línea.
+const DICT = [
+  ['cotiz','ia','Cotizador que calcula el precio solo'], ['precio','ia','Precios calculados al instante'],
+  ['respond','ia','Respuestas redactadas por IA'], ['contest','ia','Asistente que atiende 24 horas'],
+  ['noche','ia','Asistente que atiende 24 horas'], ['pregunt','ia','Preguntas frecuentes resueltas con IA'],
+  ['atiend','ia','Asistente que atiende 24 horas'], ['clasific','ia','Solicitudes clasificadas solas'], ['recomend','ia','Recomendaciones por cliente'],
+  ['whatsapp','auto','WhatsApp conectado a tus procesos'], ['mano','auto','Tareas repetitivas que se hacen solas'],
+  ['manual','auto','Tareas repetitivas que se hacen solas'], ['excel','auto','Datos que se mueven sin copiar y pegar'],
+  ['correo','auto','Correos que salen solos'], ['factur','auto','Facturas que se generan solas'],
+  ['report','auto','Reporte diario sin armarlo a mano'], ['recordatori','auto','Recordatorios automáticos a clientes'], ['seguimiento','auto','Seguimiento de clientes sin olvidos'],
+  ['pagina','web','Sitio con catálogo y contacto directo'], ['web','web','Sitio con catálogo y contacto directo'],
+  ['sitio','web','Sitio con catálogo y contacto directo'], ['catalogo','web','Catálogo en línea siempre al día'],
+  ['tienda','web','Tienda en línea con pagos'], ['google','web','Sitio que aparece en Google'], ['instagram','web','Sitio propio además de Instagram'], ['online','web','Presencia en línea propia'],
+  ['inventario','db','Inventario con existencias al día'], ['stock','db','Inventario con existencias al día'],
+  ['clientes','db','Base de clientes con su historial'], ['pedido','db','Pedidos registrados en un solo lugar'],
+  ['ventas','db','Ventas medidas por día y producto'], ['citas','db','Agenda de citas centralizada'], ['agenda','db','Agenda de citas centralizada'], ['registr','db','Registros en una base de datos real'],
+];
+const EXAMPLES = [
+  'Mis clientes piden cotización por WhatsApp y respondo todo a mano',
+  'No tengo página web y el inventario lo llevo en un Excel',
+  'Pierdo ventas porque nadie contesta de noche',
+  'Las facturas y el reporte de ventas los hago a mano cada semana',
+];
+const MOD_ORDER = ['web','ia','auto','db'];
+const input = $('#tr-q'), words = $('#tr-words'), stage = $('#tr-stage'), core = $('#tr-core'), wires = $('#tr-wires'), sum = $('#tr-sum');
+const mods = Object.fromEntries([...document.querySelectorAll('#tr-mods li')].map(li => [li.dataset.m, li]));
+let run = 0; // invalida animaciones en curso cuando empieza otra traducción
+
+function parse(text){
+  const toks = text.trim().split(/\s+/).filter(Boolean);
+  const hit = {};
+  const marks = toks.map(t => {
+    const n = norm(t);
+    const d = DICT.find(([p, m]) => n.startsWith(p) && !hit[m]);
+    if (d) { hit[d[1]] = d[2]; return d[1]; }
+    return null;
+  });
+  return {toks, marks, hit};
+}
+
+function drawWires(){
+  const sr = stage.getBoundingClientRect(), cr = core.getBoundingClientRect();
+  const cx = cr.left + cr.width/2 - sr.left, cy = cr.bottom - sr.top - 4;
+  wires.setAttribute('viewBox', `0 0 ${sr.width} ${sr.height}`);
+  wires.querySelectorAll('path').forEach(p => p.remove());
+  MOD_ORDER.forEach(m => {
+    const r = mods[m].getBoundingClientRect();
+    const x = r.left + r.width/2 - sr.left, y = r.top - sr.top;
+    const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d', `M${cx} ${cy} C ${cx} ${(cy+y)/2}, ${x} ${(cy+y)/2}, ${x} ${y}`);
+    p.dataset.m = m; wires.appendChild(p);
+  });
+  paintWires();
+}
+function paintWires(){ wires.querySelectorAll('path').forEach(p => p.classList.toggle('hot', mods[p.dataset.m].classList.contains('on'))); }
+new ResizeObserver(drawWires).observe(stage);
+
+function setModules(hit){
+  MOD_ORDER.forEach(m => {
+    const li = mods[m], on = !!hit[m];
+    li.classList.toggle('on', on); li.classList.toggle('off', !on);
+    $('p', li).textContent = on ? hit[m] : 'No hace falta en este caso';
+  });
+  paintWires();
+  const n = Object.keys(hit).length;
+  sum.innerHTML = n
+    ? `<b>${n} de 4 piezas</b> para tu caso. Pídelas como propuesta con precio cerrado.`
+    : 'No reconocimos piezas en esa frase. Cuéntanos más en la propuesta y lo vemos juntos.';
+}
+
+function translate(text, animate){
+  const id = ++run;
+  stage.querySelectorAll('.chip').forEach(c => c.remove());
+  const {toks, marks, hit} = parse(text);
+  words.innerHTML = '';
+  const spans = toks.map((t, i) => {
+    const s = document.createElement('span'); s.textContent = t;
+    if (marks[i]) { s.className = 'kw'; s.dataset.m = marks[i]; }
+    words.appendChild(s); return s;
+  });
+  if (!animate || reduce) { core.classList.remove('busy'); setModules(hit); return; }
+  dispatchEvent(new Event('negocia:signal'));
+  MOD_ORDER.forEach(m => { mods[m].classList.remove('on','off'); $('p', mods[m]).textContent = '…'; });
+  paintWires(); sum.textContent = 'Traduciendo…'; core.classList.add('busy');
+  const sr = stage.getBoundingClientRect(), cr = core.getBoundingClientRect();
+  const kws = spans.filter(s => s.dataset.m);
+  if (!kws.length) { setTimeout(() => { if (id === run) { core.classList.remove('busy'); setModules(hit); } }, 500); return; }
+  let left = kws.length;
+  kws.forEach((s, i) => {
+    const r = s.getBoundingClientRect(), mr = mods[s.dataset.m].getBoundingClientRect();
+    const chip = document.createElement('span'); chip.className = 'chip'; chip.textContent = s.textContent;
+    stage.appendChild(chip);
+    const x0 = r.left - sr.left, y0 = r.top - sr.top;
+    const cw = chip.offsetWidth, ch = chip.offsetHeight;
+    const cx = cr.left + cr.width/2 - sr.left - cw/2, cy = cr.top + cr.height/2 - sr.top - ch/2;
+    const mx = mr.left + mr.width/2 - sr.left - cw/2, my = mr.top + 18 - sr.top;
+    const a = chip.animate([
+      {transform:`translate(${x0}px,${y0}px) scale(1)`, opacity:0},
+      {transform:`translate(${x0}px,${y0-10}px) scale(1.08)`, opacity:1, offset:.12},
+      {transform:`translate(${cx}px,${cy}px) scale(.9) rotate(${i%2?8:-8}deg)`, offset:.5},
+      {transform:`translate(${mx}px,${my}px) scale(.8)`, opacity:1, offset:.92},
+      {transform:`translate(${mx}px,${my+6}px) scale(.4)`, opacity:0},
+    ], {duration:1500, delay:250 + i*260, easing:'cubic-bezier(.65,0,.35,1)', fill:'both'});
+    setTimeout(() => s.classList.add('sent'), 250 + i*260 + 180);
+    a.onfinish = () => {
+      chip.remove();
+      if (id !== run) return;
+      const li = mods[s.dataset.m];
+      li.classList.add('on','flash'); $('p', li).textContent = hit[s.dataset.m]; paintWires();
+      setTimeout(() => li.classList.remove('flash'), 700);
+      if (--left === 0) { core.classList.remove('busy'); setModules(hit); }
+    };
+  });
+}
+
+// Autodemo: escribe ejemplos solo mientras el visitante no tome el control y el hero esté a la vista.
+let auto = !reduce, heroVisible = true, exIdx = 0, timer;
+const sleep = ms => new Promise(r => timer = setTimeout(r, ms));
+async function cycle(){
+  while (auto) {
+    await sleep(5200); if (!auto) return;
+    if (!heroVisible || document.hidden) continue;
+    exIdx = (exIdx + 1) % EXAMPLES.length;
+    const next = EXAMPLES[exIdx];
+    while (input.value.length && auto) { input.value = input.value.slice(0, -2); await sleep(12); }
+    for (let i = 1; i <= next.length && auto; i++) { input.value = next.slice(0, i); await sleep(26 + Math.random()*30); }
+    if (auto) translate(next, true);
+  }
+}
+const takeOver = () => { if (!auto) return; auto = false; clearTimeout(timer); input.select(); };
+input.addEventListener('focus', takeOver);
+input.addEventListener('pointerdown', takeOver);
+$('#tr-form').addEventListener('submit', e => { e.preventDefault(); takeOver(); translate(input.value, true); });
+onView($('#tr'), v => heroVisible = v, {threshold:.2});
+translate(input.value, false);   // en reposo ya se ve traducido
+cycle();
+
+// Las CTA llevan la frase del traductor al formulario.
+const need = $('#f-necesidad');
+let needAuto = true;
+need.addEventListener('input', e => { if (e.isTrusted) needAuto = false; });
+document.querySelectorAll('[data-carry]').forEach(a => a.addEventListener('click', () => {
+  if (needAuto && input.value.trim()) { need.value = input.value.trim(); need.dispatchEvent(new Event('input')); }
+}));
+
+/* ================= FONDO: la red que negocia =================
+   Patrón de nodos de la marca (red neuronal de la "I"). Dos señales, esmeralda y azul,
+   salen de lados opuestos y se encuentran en un nodo: ahí se cierra el trato. */
+{
+  const cv = document.createElement('canvas'); cv.className = 'net'; cv.setAttribute('aria-hidden', 'true');
+  document.body.prepend(cv);
+  const ctx = cv.getContext('2d'), PAR = .12, SPEED = .34; // parallax respecto del scroll; px por ms
+  let W = 0, H = 0, TH = 0, nodes = [], adj = [], pulses = [], rings = [], pairs = 0, lastSpawn = -1e9, ptr = null, ptrAt = -1e9, prev = 0;
+
+  function build(){
+    const dpr = Math.min(devicePixelRatio || 1, 1.5);
+    W = innerWidth; H = innerHeight; TH = Math.round(H * 1.6);
+    cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    let s = 11; const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
+    const n = Math.min(130, Math.max(38, Math.round(W * TH / 24000)));
+    nodes = Array.from({length:n}, (_, i) => ({x:r()*W, y:r()*TH, ph:r()*6.28, acc: i % 11 === 0 ? 1 + (i % 22 === 0) : 0, lit:0}));
+    adj = nodes.map((a, i) => nodes.map((b, j) => [j, Math.hypot(a.x-b.x, a.y-b.y)])
+      .filter(([j, d]) => j !== i && d < 210).sort((p, q) => p[1] - q[1]).slice(0, 3).map(([j]) => j));
+    adj.forEach((l, i) => l.forEach(j => { if (!adj[j].includes(i)) adj[j].push(i); }));
+    // Una sola red: cada isla se une a una anterior por su par de nodos más cercano, o las señales no tendrían camino.
+    const comp = new Array(n).fill(-1); let c = 0;
+    for (let i = 0; i < n; i++) if (comp[i] < 0) { const q = [i]; comp[i] = c;
+      while (q.length) { const u = q.shift(); for (const v of adj[u]) if (comp[v] < 0) { comp[v] = c; q.push(v); } } c++; }
+    for (let k = 1; k < c; k++) {
+      let best = [0, 0, Infinity];
+      nodes.forEach((a, i) => { if (comp[i] === k) nodes.forEach((b, j) => { if (comp[j] < k) { const d = Math.hypot(a.x-b.x, a.y-b.y); if (d < best[2]) best = [i, j, d]; } }); });
+      adj[best[0]].push(best[1]); adj[best[1]].push(best[0]);
+    }
+    pulses = []; rings = []; pairs = 0;
+    if (reduce) draw(0);
+  }
+  const pos = (i, t) => {
+    const nd = nodes[i], y = nd.y + Math.cos(t*.00031 + nd.ph) * 7 - scrollY * PAR;
+    return {x: nd.x + Math.sin(t*.00027 + nd.ph) * 7, y: ((y % TH) + TH) % TH};
+  };
+  const onScreen = (i, t) => { const y = pos(i, t).y; return y > 30 && y < H - 30; };
+  function bfs(a, m){
+    const from = new Array(nodes.length).fill(-1); from[a] = a; const q = [a];
+    while (q.length) { const u = q.shift(); if (u === m) break; for (const v of adj[u]) if (from[v] < 0) { from[v] = u; q.push(v); } }
+    if (from[m] < 0) return null;
+    const path = [m]; while (path[0] !== a) path.unshift(from[path[0]]); return path;
+  }
+  function handshake(t){
+    const vis = nodes.map((_, i) => i).filter(i => onScreen(i, t)); if (vis.length < 8) return;
+    const pick = a => a[Math.floor(Math.random() * a.length)];
+    const near = ptr && t - ptrAt < 3000 ? vis.reduce((b, i) => { const p = pos(i, t), q = pos(b, t);
+      return Math.hypot(p.x-ptr.x, p.y-ptr.y) < Math.hypot(q.x-ptr.x, q.y-ptr.y) ? i : b; }, vis[0]) : null;
+    for (let k = 0; k < 8; k++) {
+      const m = k < 3 && near !== null ? near : pick(vis), mx = pos(m, t).x;   // el cursor manda, salvo que no haya camino
+      const L = vis.filter(i => pos(i, t).x < mx - W*.12), R = vis.filter(i => pos(i, t).x > mx + W*.12);
+      if (!L.length || !R.length) continue;
+      const pa = bfs(pick(L), m), pb = bfs(pick(R), m);
+      if (pa && pb && pa.length > 2 && pb.length > 2 && pa.length < 8 && pb.length < 8) {
+        const pair = {m, left:2}; pairs++;
+        pulses.push({path:pa, seg:0, u:0, col:'16,185,129', pair}, {path:pb, seg:0, u:0, col:'37,99,235', pair});
+        return;
+      }
+    }
+  }
+  function draw(t){
+    ctx.clearRect(0, 0, W, H);
+    const P = nodes.map((_, i) => pos(i, t));
+    ctx.beginPath();
+    adj.forEach((l, i) => l.forEach(j => {
+      if (j < i) return; const a = P[i], b = P[j];
+      if (Math.abs(a.y - b.y) > TH/2 || (a.y > H + 20 && b.y > H + 20)) return;
+      ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+    }));
+    ctx.strokeStyle = 'rgba(214,240,228,.055)'; ctx.lineWidth = 1; ctx.stroke();
+    P.forEach((p, i) => {
+      if (p.y > H + 10) return;
+      const nd = nodes[i], near = ptr ? Math.max(0, 1 - Math.hypot(p.x-ptr.x, p.y-ptr.y) / 200) : 0;
+      nd.lit *= .96;
+      const a = .16 + near * .35 + nd.lit * .8;
+      ctx.fillStyle = nd.acc === 1 ? `rgba(16,185,129,${a + .25})` : nd.acc === 2 ? `rgba(37,99,235,${a + .3})` : `rgba(214,240,228,${a})`;
+      ctx.beginPath(); ctx.arc(p.x, p.y, nd.acc ? 2.2 : 1.5, 0, 6.283); ctx.fill();
+    });
+    pulses.forEach(pl => {
+      const a = P[pl.path[pl.seg]], b = P[pl.path[pl.seg + 1]];
+      if (!b || Math.abs(a.y - b.y) > TH/2) return;
+      const hx = a.x + (b.x - a.x) * pl.u, hy = a.y + (b.y - a.y) * pl.u;
+      const len = Math.hypot(b.x - a.x, b.y - a.y) || 1, tail = Math.min(80, len * pl.u);
+      const tx = hx - (b.x - a.x) / len * tail, ty = hy - (b.y - a.y) / len * tail;
+      const g = ctx.createLinearGradient(tx, ty, hx, hy);
+      g.addColorStop(0, `rgba(${pl.col},0)`); g.addColorStop(1, `rgba(${pl.col},.85)`);
+      ctx.strokeStyle = g; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(hx, hy); ctx.stroke();
+      ctx.fillStyle = `rgb(${pl.col})`; ctx.beginPath(); ctx.arc(hx, hy, 2.6, 0, 6.283); ctx.fill();
+    });
+    rings = rings.filter(r => t - r.t0 < 1400);
+    rings.forEach(r => {
+      const k = (t - r.t0) / 1400, e = 1 - (1 - k) ** 3, p = P[r.m];   // ease-out: el trato se expande rápido y se asienta
+      ctx.fillStyle = `rgba(10,255,213,${(1 - k) ** 2})`;
+      ctx.beginPath(); ctx.arc(p.x, p.y, 4 * (1 - k) + 1.5, 0, 6.283); ctx.fill();
+      ctx.strokeStyle = `rgba(16,185,129,${(1 - k) * .8})`; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(p.x, p.y, 6 + e * 52, 0, 6.283); ctx.stroke();
+      ctx.strokeStyle = `rgba(37,99,235,${(1 - k) * .6})`; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(p.x, p.y, 3 + e * 30, 0, 6.283); ctx.stroke();
+    });
+  }
+  function step(t){
+    const dt = Math.min(50, t - (prev || t)); prev = t;
+    if (t - lastSpawn > 2400 && pairs < 3) { lastSpawn = t; handshake(t); }
+    pulses = pulses.filter(pl => {
+      const a = pos(pl.path[pl.seg], t), b = pos(pl.path[pl.seg + 1], t);
+      pl.u += SPEED * dt / Math.max(20, Math.hypot(b.x - a.x, b.y - a.y));
+      while (pl.u >= 1) {
+        pl.u -= 1; pl.seg++; nodes[pl.path[pl.seg]].lit = .6;
+        if (pl.seg >= pl.path.length - 1) {
+          if (--pl.pair.left === 0) { rings.push({m:pl.pair.m, t0:t}); nodes[pl.pair.m].lit = 1; pairs--; }
+          return false;
+        }
+      }
+      return true;
+    });
+    draw(t); requestAnimationFrame(step);
+  }
+  let lastW = 0, lastH = 0;
+  const resize = () => { if (innerWidth !== lastW || Math.abs(innerHeight - lastH) > 120) { lastW = innerWidth; lastH = innerHeight; build(); } else if (reduce) draw(0); };
+  addEventListener('resize', resize); resize();
+  if (!reduce) {
+    addEventListener('pointermove', e => { if (e.pointerType === 'mouse') { ptr = {x:e.clientX, y:e.clientY}; ptrAt = performance.now(); } }, {passive:true});
+    addEventListener('negocia:signal', () => { const t = performance.now(); handshake(t); handshake(t); });
+    requestAnimationFrame(step);
+  }
+}
+
+/* ================= CAPAS ================= */
+const stack = $('#stack'), planes = [...document.querySelectorAll('.plane')], capas = [...document.querySelectorAll('.capa')];
+function focusCapa(i){
+  capas.forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.i === i)));
+  planes.forEach(p => p.classList.toggle('on', +p.dataset.i === i));
+}
+capas.forEach(b => {
+  b.addEventListener('mouseenter', () => focusCapa(+b.dataset.i));
+  b.addEventListener('focus', () => focusCapa(+b.dataset.i));
+  b.addEventListener('click', () => focusCapa(+b.dataset.i));
+});
+onView(stack, (v, io) => { if (v) { stack.classList.add('open'); io.disconnect(); } }, {threshold:.4});
+if (!reduce) {
+  let raf = 0;
+  $('#capas').addEventListener('pointermove', e => {
+    if (e.pointerType !== 'mouse' || raf) return;
+    raf = requestAnimationFrame(() => {
+      raf = 0;
+      const r = stack.getBoundingClientRect();
+      const dx = (e.clientX - r.left) / r.width - .5, dy = (e.clientY - r.top) / r.height - .5;
+      stack.style.setProperty('--rz', `${-42 + dx*14}deg`); stack.style.setProperty('--rx', `${56 - dy*10}deg`);
+    });
+  });
+}
+
+/* ================= TRAZO ================= */
+// Plano guillotina precalculado: [x, y, w, h, nombre]. Área usada 4.160.800 de 4.465.200 mm² = 93,2 %.
+const PIECES = [
+  [0,0,800,600,'Base'],[800,0,800,600,'Base'],[1600,0,560,600,'Lateral'],[2160,0,280,600,'Divisor'],
+  [0,600,900,720,'Puerta'],[900,600,900,720,'Puerta'],[1800,600,640,720,'Costado'],
+  [0,1320,1200,400,'Repisa'],[1200,1320,700,400,'Repisa'],[1900,1320,450,400,'Cajón'],
+];
+const CUTS = [[0,600,2440,600],[0,1320,2440,1320],[0,1720,2440,1720],[800,0,800,600],[1600,0,1600,600],[2160,0,2160,600],
+  [900,600,900,1320],[1800,600,1800,1320],[1200,1320,1200,1720],[1900,1320,1900,1720],[2350,1320,2350,1720]];
+const NS = 'http://www.w3.org/2000/svg', el = (t, a) => { const n = document.createElementNS(NS, t); for (const k in a) n.setAttribute(k, a[k]); return n; };
+const board = $('#board'), gP = $('#pieces'), gC = $('#cuts');
+let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+gP.append(el('rect', {class:'waste', x:2350, y:1320, width:90, height:400}));
+gP.append(el('rect', {class:'waste', x:0, y:1720, width:2440, height:110}));
+PIECES.forEach(([x,y,w,h,name], i) => {
+  const g = el('g', {class:'pz', style:`--i:${i}`});
+  // Desorden inicial visible: pila girada hacia el centro del tablero
+  const tx = 1220 - (x + w/2) + (rnd()-.5)*1300, ty = 915 - (y + h/2) + (rnd()-.5)*700, rot = (rnd()-.5)*40;
+  g.style.transform = `translate(${tx}px,${ty}px) rotate(${rot}deg)`;
+  g.append(el('rect', {x:x+6, y:y+6, width:w-12, height:h-12, rx:6}));
+  const label = el('text', {x:x+w/2, y:y+h/2 - 22}); label.textContent = w >= 400 ? name : name.slice(0, 3) + '.';
+  const num = el('text', {class:'num', x:x+w/2, y:y+h/2 + 44}); num.textContent = String(i + 1);
+  g.append(label, num); gP.append(g);
+});
+CUTS.forEach(([x1,y1,x2,y2], i) => gC.append(el('line', {class:'cut', x1, y1, x2, y2, style:`--i:${i};--len:${Math.hypot(x2-x1,y2-y1)}`})));
+const boardBtn = $('#board-btn');
+const setPacked = on => { board.classList.toggle('packed', on); boardBtn.textContent = on ? 'Desordenar' : 'Calcular plano'; };
+boardBtn.addEventListener('click', () => setPacked(!board.classList.contains('packed')));
+if (reduce) setPacked(true);
+else onView(board, (v, io) => { if (v) { setPacked(true); io.disconnect(); } }, {threshold:.45});
+
+/* ================= CRISTAL ================= */
+const ls = $('#lens-stage'), lens = $('#lens');
+let lx = .62, ly = .48, lensVisible = false, t0 = performance.now(), lastUser = 0, rafL = 0;
+const place = (x, y) => { lx = Math.min(.97, Math.max(.03, x)); ly = Math.min(.95, Math.max(.05, y));
+  ls.style.setProperty('--x', `${lx*100}%`); ls.style.setProperty('--y', `${ly*100}%`); };
+const fromEvent = e => { const r = ls.getBoundingClientRect(); place((e.clientX - r.left)/r.width, (e.clientY - r.top)/r.height); lastUser = performance.now(); };
+ls.addEventListener('pointermove', e => { if (e.pointerType === 'mouse' || e.buttons) fromEvent(e); });
+lens.addEventListener('pointerdown', e => { lens.setPointerCapture(e.pointerId); fromEvent(e); });
+lens.addEventListener('keydown', e => {
+  const step = e.shiftKey ? .12 : .04, d = {ArrowLeft:[-step,0], ArrowRight:[step,0], ArrowUp:[0,-step], ArrowDown:[0,step]}[e.key];
+  if (!d) return; e.preventDefault(); place(lx + d[0], ly + d[1]); lastUser = performance.now();
+});
+function drift(now){
+  rafL = 0;
+  if (!lensVisible) return;
+  if (now - lastUser > 2600) {
+    const t = (now - t0) / 1000;
+    place(lx + ((.5 + .36*Math.sin(t*.45)) - lx)*.04, ly + ((.5 + .3*Math.sin(t*.7 + 1)) - ly)*.04);
+  }
+  rafL = requestAnimationFrame(drift);
+}
+onView(ls, v => { lensVisible = v; if (v && !reduce && !rafL) rafL = requestAnimationFrame(drift); }, {threshold:.1});
+
+/* ================= PROCESO ================= */
+const steps = $('#steps');
+onView(steps, (v, io) => { if (v) { steps.classList.add('go'); io.disconnect(); } }, {threshold:.5});
+
+/* ================= FORMULARIO ================= */
+const form = $('#prop'), F = form.elements, val = n => F[n].value.trim();
+const PIEZA = {web:'Página web', ia:'Sistema con IA', auto:'Automatización', db:'Base de datos'};
+const CANAL = {
+  whatsapp: {name:'WhatsApp', label:'Tu WhatsApp', type:'tel', auto:'tel', ph:'+58 412 1234567', hint:'Con código de país.',
+    ok: v => /^\+?[\d\s()-]{10,}$/.test(v), msg:'Escribe tu WhatsApp con código de país, por ejemplo +58 412 1234567.'},
+  correo: {name:'correo', label:'Tu correo', type:'email', auto:'email', ph:'nombre@dominio.com', hint:'Ahí te llega la propuesta.',
+    ok: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), msg:'Escribe un correo válido, por ejemplo nombre@dominio.com.'},
+};
+const canal = () => CANAL[F.canal.value];
+// En el orden en que aparecen, para enfocar el primer error de arriba abajo.
+const rules = {
+  necesidad: v => v.length >= 10 || 'Cuéntanos un poco más: con una frase de 10 caracteres o más podemos empezar.',
+  nombre: v => v.length >= 2 || 'Escribe tu nombre para saber a quién responderle.',
+  contacto: v => canal().ok(v) || canal().msg,
+};
+function check(name){
+  const r = rules[name](val(name)), msg = r === true ? '' : r;
+  F[name].setAttribute('aria-invalid', String(!!msg)); $('#e-' + name).textContent = msg; return !msg;
+}
+// Errores al enviar; luego se re-validan al escribir. Validar en blur movía el botón bajo el cursor y se perdía el clic.
+Object.keys(rules).forEach(n => F[n].addEventListener('input', () => F[n].getAttribute('aria-invalid') === 'true' && check(n)));
+
+// Borrador en vivo: cada cambio se refleja a la izquierda, con un destello en la fila que cambió.
+const boxes = [...form.querySelectorAll('input[name=piezas]')];
+const setRow = (el, text, empty) => {
+  if (el.textContent === text) return;
+  el.textContent = text; el.classList.toggle('empty', empty);
+  if (!reduce) { el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick'); }
+};
+function draft(){
+  const quien = val('negocio') || val('nombre'), need = val('necesidad');
+  setRow($('#d-para'), quien ? `Propuesta para ${quien}` : 'Propuesta para tu negocio', !quien);
+  setRow($('#d-need'), need ? `“${need.length > 160 ? need.slice(0, 157) + '…' : need}”` : 'Aquí aparece lo que frena tu negocio.', !need);
+  const sel = boxes.filter(b => b.checked).map(b => b.value), pz = $('#d-pieces');
+  const nose = sel.includes('nose'), none = !sel.length, alt = pz.querySelector('[data-m="nose"]');
+  pz.classList.toggle('nose', nose || none);
+  alt.textContent = nose ? 'Lo definimos juntos' : 'Aún sin elegir'; alt.classList.toggle('on', nose);
+  pz.querySelectorAll('span').forEach(sp => sp !== alt && sp.classList.toggle('on', sel.includes(sp.dataset.m)));
+  const plazo = form.querySelector('input[name=plazo]:checked');
+  setRow($('#d-plazo'), plazo ? plazo.value : 'Sin fecha todavía', !plazo);
+  const via = canal().name[0].toUpperCase() + canal().name.slice(1);
+  setRow($('#d-canal'), val('contacto') ? `${via}: ${val('contacto')}` : via, false);
+  const faltan = Object.keys(rules).filter(n => rules[n](val(n)) !== true).length;
+  $('#d-state').textContent = faltan ? `Faltan ${faltan} ${faltan === 1 ? 'dato' : 'datos'}` : 'Lista para enviar';
+  $('#draft').classList.toggle('ready', !faltan);
+}
+// Las piezas se sugieren con el mismo motor del traductor, hasta que la persona las toque.
+let piecesTouched = false;
+F.necesidad.addEventListener('input', () => {
+  if (!piecesTouched) { const hit = parse(val('necesidad')).hit; boxes.forEach(b => b.checked = !!hit[b.value]); }
+  draft();
+});
+boxes.forEach(b => b.addEventListener('change', () => {
+  piecesTouched = true;
+  if (b.checked) boxes.forEach(o => { if (o !== b && (b.value === 'nose' || o.value === 'nose')) o.checked = false; });
+  draft();
+}));
+function setCanal(){
+  const c = canal(), f = F.contacto;
+  $('#l-contacto').textContent = c.label; f.type = c.type; f.autocomplete = c.auto; f.inputMode = c.type; f.placeholder = c.ph;
+  $('#h-contacto').textContent = c.hint;
+  if (f.getAttribute('aria-invalid') === 'true') check('contacto');
+  draft();
+}
+form.querySelectorAll('input[name=canal]').forEach(r => r.addEventListener('change', setCanal));
+['nombre','negocio','contacto'].forEach(n => F[n].addEventListener('input', draft));
+form.querySelectorAll('input[name=plazo]').forEach(r => r.addEventListener('change', draft));
+setCanal();
+
+let body = '';
+const status = $('#form-status'), copy = $('#copy');
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const bad = Object.keys(rules).filter(n => !check(n));
+  if (bad.length) { F[bad[0]].focus(); return; }
+  const sel = boxes.filter(b => b.checked && b.value !== 'nose').map(b => PIEZA[b.value]);
+  const plazo = form.querySelector('input[name=plazo]:checked');
+  body = [`Hola, soy ${val('nombre')}${val('negocio') ? ' de ' + val('negocio') : ''}.`, '',
+    `Qué quiero resolver: ${val('necesidad')}`,
+    `Piezas: ${sel.length ? sel.join(', ') : 'Lo definimos juntos'}`,
+    `Para cuándo: ${plazo ? plazo.value : 'Sin fecha todavía'}`,
+    `Respóndanme por ${canal().name}: ${val('contacto')}`].join('\n');
+  location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Solicitud de propuesta NegocIA')}&body=${encodeURIComponent(body)}`;
+  copy.hidden = false; copy.textContent = 'Copiar solicitud';
+  status.textContent = `Abrimos tu correo con la solicitud escrita: solo falta darle a Enviar. Si no se abrió, cópiala y mándala a ${CONTACT_EMAIL}.`;
+});
+copy.addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText(`Para: ${CONTACT_EMAIL}\n\n${body}`); copy.textContent = 'Solicitud copiada'; }
+  catch { status.textContent = `No pudimos copiarla desde el navegador. Escríbenos a ${CONTACT_EMAIL} con lo que nos contaste.`; }
+});
+})();
+</script>
+</body>
+</html>
