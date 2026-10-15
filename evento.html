@@ -28,7 +28,7 @@
   --t-xs:.8125rem; --t-0:1rem; --t-1:1.25rem; --t-2:1.5625rem; --t-3:clamp(2rem,7vw,3.05rem);
   --s-1:4px;--s-2:8px;--s-3:12px;--s-4:16px;--s-5:24px;--s-6:32px;--s-7:48px;--s-8:64px;
   --r-panel:20px; --r-field:12px; --r-pill:999px;
-  --max:640px;
+  --max:720px; --max-wide:1120px;
   --ease:cubic-bezier(.16,1,.3,1);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -55,6 +55,29 @@ p{text-wrap:pretty}
 .intro{display:grid;gap:var(--s-4);padding-block:var(--s-5) var(--s-6)}
 .intro h1{font-size:var(--t-3);letter-spacing:-.045em;max-width:16ch}
 .lead{font-size:var(--t-1);color:var(--ink-muted);line-height:1.45;max-width:36ch}
+.layout{display:grid;gap:0}
+.col{display:grid;min-width:0}
+/* pasos de "qué pasa después": solo en pantallas anchas, al lado del formulario */
+.next{display:none}
+
+/* iPad horizontal y escritorio: intro fija a la izquierda, formulario a la derecha */
+@media (min-width:960px){
+  .wrap{max-width:calc(var(--max-wide) + 2*16px)}
+  .layout{grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:var(--s-8);align-items:start;padding-top:var(--s-5)}
+  .intro{position:sticky;top:var(--s-6);padding-block:0;gap:var(--s-5)}
+  .next{display:grid;gap:var(--s-4);list-style:none;counter-reset:s;margin-top:var(--s-4);padding-top:var(--s-6);border-top:1px solid var(--line)}
+  .next li{display:grid;grid-template-columns:32px 1fr;gap:var(--s-3);align-items:start;counter-increment:s}
+  .next li::before{content:counter(s);display:grid;place-items:center;width:32px;height:32px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--line-strong);color:var(--ink-muted);font-weight:600;font-size:.9375rem}
+  .next b{display:block;font-weight:600}
+  .next span{color:var(--ink-muted);font-size:.9375rem}
+  .done ol{display:none} /* los pasos ya están a la izquierda */
+}
+/* iPad vertical: un poco más de aire */
+@media (min-width:700px) and (max-width:959px){
+  .intro{padding-block:var(--s-6) var(--s-7)}
+  form.prop,.done{padding:var(--s-7)}
+}
+.kiosk-note{font-size:var(--t-xs);color:var(--ink-muted)}
 
 /* ---------- formulario ---------- */
 form.prop{display:grid;gap:var(--s-6);padding:var(--s-6);border-radius:var(--r-panel);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
@@ -167,11 +190,18 @@ footer .wrap{display:flex;gap:var(--s-4);justify-content:space-between;flex-wrap
   </div>
 </header>
 
-<main class="wrap">
+<main class="wrap layout">
   <div class="intro">
     <h1>Cuéntanos qué frena tu negocio.</h1>
     <p class="lead">Páginas web, automatizaciones, bases de datos y sistemas con IA. Te respondemos por WhatsApp.</p>
+    <ol class="next" aria-label="Qué pasa después">
+      <li><div><b>Conversamos</b><span>Nos cuentas qué frena tu negocio, sin tecnicismos.</span></div></li>
+      <li><div><b>Te damos dos caminos</b><span>Cada propuesta trae dos opciones con precio cerrado en dólares.</span></div></li>
+      <li><div><b>Arrancamos</b><span>50 % de anticipo y 50 % contra la entrega final.</span></div></li>
+    </ol>
   </div>
+
+  <div class="col">
 
   <form class="prop" id="prop" novalidate>
     <fieldset class="grp"><legend>Qué quieres recibir</legend><div class="grp-body">
@@ -235,7 +265,9 @@ footer .wrap{display:flex;gap:var(--s-4);justify-content:space-between;flex-wrap
       <a class="btn" href="./">Ver lo que hacemos</a>
       <button class="btn btn-ghost" type="button" id="again">Enviar otra solicitud</button>
     </div>
+    <p class="kiosk-note" id="kiosk-note" aria-live="polite" hidden></p>
   </section>
+  </div>
 </main>
 
 <footer>
@@ -251,6 +283,10 @@ const FORMSUBMIT_EMAIL = 'isaac150305@gmail.com'; // mismo correo de las propues
 // Nombre del evento: se guarda con cada lead. También se puede pasar en el enlace del QR: evento.html?e=Nombre
 const EVENTO = new URLSearchParams(location.search).get('e') || 'Evento';
 const QUEUE_KEY = 'negocia-leads-pendientes';
+// Modo kiosco (iPad en el stand): evento.html?e=Nombre&kiosco — tras enviar, el formulario se limpia solo para la siguiente persona.
+const KIOSCO = new URLSearchParams(location.search).has('kiosco');
+const KIOSCO_SEG = 12;
+let kioskTimer = null;
 
 const $ = s => document.querySelector(s);
 const form = $('#prop'), btn = $('#send'), status = $('#form-status');
@@ -307,10 +343,15 @@ async function send(data) {
 // Cola local: si la red del evento falla, el lead se guarda en el teléfono y se reintenta al volver la conexión.
 const readQ = () => { try { return JSON.parse(localStorage.getItem(QUEUE_KEY)) || []; } catch { return []; } };
 const writeQ = q => { try { q.length ? localStorage.setItem(QUEUE_KEY, JSON.stringify(q)) : localStorage.removeItem(QUEUE_KEY); return true; } catch { return false; } };
+let flushing = false;
 async function flush() {
-  const q = readQ(), left = [];
-  for (const d of q) { try { await send(d); } catch { left.push(d); } }
-  writeQ(left);
+  if (flushing) return; flushing = true;
+  try {
+    const q = readQ(); if (!q.length) return;
+    const sent = [];
+    for (const d of q) { try { await send(d); sent.push(d.fecha); } catch { /* se queda en la cola */ } }
+    writeQ(readQ().filter(d => !sent.includes(d.fecha)));
+  } finally { flushing = false; }
 }
 window.addEventListener('online', flush);
 flush();
@@ -322,6 +363,19 @@ function showDone(data, queued) {
     : `Te escribimos al ${data.whatsapp} por WhatsApp.`;
   form.hidden = true; $('#done').hidden = false; $('#done').focus();
   window.scrollTo({ top: 0 });
+  if (KIOSCO) {
+    // En kiosco el lead nunca se queda solo en este iPad: la cola local sigue reintentando mientras la página esté abierta.
+    $('#done').querySelector('a.btn').hidden = true;
+    let n = KIOSCO_SEG; const note = $('#kiosk-note'); note.hidden = false;
+    const tick = () => { note.textContent = `El formulario se limpia en ${n} s para la siguiente persona.`; if (n-- <= 0) reset(); };
+    tick(); kioskTimer = setInterval(tick, 1000);
+  }
+}
+function reset() {
+  clearInterval(kioskTimer); kioskTimer = null; $('#kiosk-note').hidden = true;
+  form.reset(); Object.values(F).forEach(f => f.removeAttribute('aria-invalid'));
+  Object.keys(rules).forEach(n => { $('#e-' + n).textContent = ''; });
+  $('#done').hidden = true; form.hidden = false; window.scrollTo({ top: 0 });
 }
 
 form.addEventListener('submit', async e => {
@@ -340,10 +394,8 @@ form.addEventListener('submit', async e => {
   finally { btn.disabled = false; btn.textContent = 'Enviar solicitud'; }
 });
 
-$('#again').addEventListener('click', () => {
-  form.reset(); Object.values(F).forEach(f => f.removeAttribute('aria-invalid'));
-  $('#done').hidden = true; form.hidden = false; F.nombre.focus();
-});
+$('#again').addEventListener('click', () => { reset(); if (!KIOSCO) F.nombre.focus(); });
+if (KIOSCO) setInterval(flush, 30000);
 })();
 </script>
 </body>
