@@ -4,14 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>NegocIA · Pide tu propuesta</title>
-<meta name="description" content="Déjanos tus datos y te enviamos una propuesta con precio cerrado o agendamos un diagnóstico gratuito de 30 minutos.">
+<meta name="description" content="Déjanos tus datos y te enviamos una propuesta con precio cerrado en dólares o agendamos un diagnóstico gratuito de 30 minutos.">
 <meta name="theme-color" content="#060807">
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..800&display=swap" rel="stylesheet">
 <style>
-/* Página de leads para eventos: mismos tokens que index.html (tema oscuro fijo, esmeralda→azul). Una columna, pensada para abrirse desde un QR. */
+/* Página de leads para eventos. Mismos tokens que index.html (tema oscuro fijo, esmeralda→azul).
+   Concepto: el formulario va en plano, sin tarjeta; lo único que se levanta es la ficha "Tu solicitud",
+   que se arma en vivo mientras escribes y al enviar se convierte en la confirmación.
+   Móvil: intro → formulario → ficha → barra de envío fija abajo.
+   Desde 960 px: intro y ficha fijas a la izquierda, formulario a la derecha. */
 :root{
   color-scheme: dark;
   --ground:#060807;
@@ -20,15 +24,24 @@
   --line-strong:rgba(214,240,228,.22);
   --ink:#ecf3ef;
   --ink-muted:#9ba7a1;
-  --em:#10b981;
-  --az:#2563eb;
+  --em:#10b981;             /* esmeralda de marca, 7.9:1 sobre --ground */
+  --em-wash:rgba(16,185,129,.1);
+  --az:#2563eb;             /* azul de marca, solo rellenos y el degradado */
   --error:#f87171;
   --grad:linear-gradient(100deg,var(--em),var(--az));
   --font:"Geist",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --t-xs:.8125rem; --t-0:1rem; --t-1:1.25rem; --t-2:1.5625rem; --t-3:clamp(2rem,7vw,3.05rem);
+
+  /* escala 1,25 sobre 16 px */
+  --t-xs:.8125rem;   /* 13: notas, etiquetas de la ficha */
+  --t-sm:.9375rem;   /* 15: etiquetas de campo, chips */
+  --t-0:1rem;        /* 16: cuerpo y campos (16 evita el zoom de iOS) */
+  --t-1:1.25rem;     /* 20: entradilla, títulos de grupo */
+  --t-2:1.5625rem;   /* 25: título de la ficha */
+  --t-3:clamp(2.1rem,7.4vw,3.4rem); /* titular */
+
   --s-1:4px;--s-2:8px;--s-3:12px;--s-4:16px;--s-5:24px;--s-6:32px;--s-7:48px;--s-8:64px;
-  --r-panel:20px; --r-field:12px; --r-pill:999px;
-  --max:720px; --max-wide:1120px;
+  --r-panel:20px; --r-card:14px; --r-field:12px; --r-pill:999px;
+  --max:720px; --max-wide:1160px;
   --ease:cubic-bezier(.16,1,.3,1);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -36,92 +49,115 @@
 html{-webkit-text-size-adjust:100%}
 body{background:var(--ground);color:var(--ink);font-family:var(--font);font-size:var(--t-0);line-height:1.55;overflow-x:clip;-webkit-font-smoothing:antialiased}
 body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:radial-gradient(90% 50% at 90% -10%,rgba(16,185,129,.12),transparent 60%),radial-gradient(70% 40% at 0% 0%,rgba(37,99,235,.09),transparent 60%)}
+  background:radial-gradient(80% 45% at 95% -5%,rgba(16,185,129,.13),transparent 60%),radial-gradient(60% 40% at -5% 0%,rgba(37,99,235,.1),transparent 60%)}
 header,main,footer{position:relative;z-index:1}
 a{color:inherit}
-h1,h2{font-weight:600;letter-spacing:-.035em;line-height:1.05;text-wrap:balance}
+h1,h2,h3{font-weight:600;letter-spacing:-.035em;line-height:1.05;text-wrap:balance}
 p{text-wrap:pretty}
 :focus-visible{outline:2px solid var(--em);outline-offset:3px;border-radius:6px}
-.wrap{width:100%;max-width:calc(var(--max) + 2*16px);margin-inline:auto;
+.wrap{width:100%;max-width:calc(var(--max) + 32px);margin-inline:auto;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 
+/* ---------- cabecera ---------- */
 .top{padding-block:var(--s-5)}
 .top .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--s-4)}
 .logo-negocia{display:block;height:28px;width:91.3px}
-.top a.more{font-size:.9375rem;color:var(--ink-muted);text-underline-offset:4px}
+.top a.more{font-size:var(--t-sm);color:var(--ink-muted);text-underline-offset:4px}
 .top a.more:hover{color:var(--ink)}
 
-.intro{display:grid;gap:var(--s-4);padding-block:var(--s-5) var(--s-6)}
-.intro h1{font-size:var(--t-3);letter-spacing:-.045em;max-width:16ch}
-.lead{font-size:var(--t-1);color:var(--ink-muted);line-height:1.45;max-width:36ch}
-.layout{display:grid;gap:0}
-.col{display:grid;min-width:0}
-/* pasos de "qué pasa después": solo en pantallas anchas, al lado del formulario */
-.next{display:none}
+/* ---------- layout ---------- */
+.layout{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"intro" "form" "ticket" "send";align-items:start}
+.intro{grid-area:intro;display:grid;gap:var(--s-4);padding-block:var(--s-5) var(--s-7)}
+.intro h1{font-size:var(--t-3);letter-spacing:-.05em;line-height:.98;max-width:14ch}
+.lead{font-size:var(--t-1);color:var(--ink-muted);line-height:1.45;max-width:34ch}
 
-/* iPad horizontal y escritorio: intro fija a la izquierda, formulario a la derecha */
-@media (min-width:960px){
-  .wrap{max-width:calc(var(--max-wide) + 2*16px)}
-  .layout{grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:var(--s-8);align-items:start;padding-top:var(--s-5)}
-  .intro{position:sticky;top:var(--s-6);padding-block:0;gap:var(--s-5)}
-  .next{display:grid;gap:var(--s-4);list-style:none;counter-reset:s;margin-top:var(--s-4);padding-top:var(--s-6);border-top:1px solid var(--line)}
-  .next li{display:grid;grid-template-columns:32px 1fr;gap:var(--s-3);align-items:start;counter-increment:s}
-  .next li::before{content:counter(s);display:grid;place-items:center;width:32px;height:32px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--line-strong);color:var(--ink-muted);font-weight:600;font-size:.9375rem}
-  .next b{display:block;font-weight:600}
-  .next span{color:var(--ink-muted);font-size:.9375rem}
-  .done ol{display:none} /* los pasos ya están a la izquierda */
-}
-/* iPad vertical: un poco más de aire */
-@media (min-width:700px) and (max-width:959px){
-  .intro{padding-block:var(--s-6) var(--s-7)}
-  form.prop,.done{padding:var(--s-7)}
-}
-.kiosk-note{font-size:var(--t-xs);color:var(--ink-muted)}
-
-/* ---------- formulario ---------- */
-form.prop{display:grid;gap:var(--s-6);padding:var(--s-6);border-radius:var(--r-panel);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
-fieldset.grp{border:0;min-width:0}
+/* ---------- formulario en plano: grupos separados por filetes ---------- */
+form.prop{grid-area:form;display:grid;min-width:0}
+fieldset.grp{border:0;min-width:0;padding-block:var(--s-6);border-top:1px solid var(--line)}
+fieldset.grp:first-of-type{border-top:0;padding-top:0}
 .grp legend{float:left;width:100%;font-size:var(--t-1);font-weight:600;letter-spacing:-.02em;margin-bottom:var(--s-4)}
 .grp-body{clear:both;display:grid;gap:var(--s-5)}
 .field{display:grid;gap:var(--s-2)}
-.field label,.lbl{font-size:.9375rem;font-weight:500}
+.field label{font-size:var(--t-sm);font-weight:500}
 .hint{font-size:var(--t-xs);color:var(--ink-muted);font-weight:400}
-.field input,.field textarea{width:100%;border-radius:var(--r-field);border:1px solid var(--line-strong);background:var(--ground);color:var(--ink);
-  font:400 var(--t-0)/1.5 var(--font);padding:var(--s-3) var(--s-4);min-height:48px}
+.field input,.field textarea{width:100%;border-radius:var(--r-field);border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);
+  font:400 var(--t-0)/1.5 var(--font);padding:var(--s-3) var(--s-4);min-height:52px;transition:border-color .2s}
 .field ::placeholder{color:var(--ink-muted);opacity:1}
 .field textarea{min-height:96px;resize:vertical}
-.field input:focus-visible,.field textarea:focus-visible{outline:2px solid var(--em);outline-offset:1px}
+.field input:focus-visible,.field textarea:focus-visible{outline:2px solid var(--em);outline-offset:1px;border-color:transparent}
 .field [aria-invalid="true"]{border-color:var(--error)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-5)}
 
-/* tipo de solicitud: dos caminos, el único bloque que se levanta */
+/* dos caminos */
 .paths{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-3)}
 .path{position:relative;display:block;cursor:pointer}
 .path input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
-.path span{display:grid;gap:var(--s-1);height:100%;padding:var(--s-4);border-radius:14px;background:var(--ground);
+.path span{display:grid;gap:var(--s-2);height:100%;padding:var(--s-4) var(--s-4) var(--s-5);border-radius:var(--r-card);background:var(--surface);
   box-shadow:inset 0 0 0 1px var(--line-strong);transition:box-shadow .2s,background .2s;pointer-events:none}
-.path b{font-weight:600;font-size:var(--t-0);letter-spacing:-.01em}
+.path b{display:flex;align-items:center;gap:var(--s-2);font-weight:600;letter-spacing:-.01em}
+.path b::before{content:"";flex:none;width:18px;height:18px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--line-strong);transition:box-shadow .2s}
 .path small{font-size:var(--t-xs);color:var(--ink-muted);line-height:1.45}
-.path input:checked + span{background:rgba(16,185,129,.09);box-shadow:inset 0 0 0 1.5px var(--em)}
+.path:hover span{box-shadow:inset 0 0 0 1px var(--ink-muted)}
+.path input:checked + span{background:var(--em-wash);box-shadow:inset 0 0 0 1.5px var(--em)}
+.path input:checked + span b::before{box-shadow:inset 0 0 0 5px var(--em)}
 .path input:focus-visible + span{outline:2px solid var(--em);outline-offset:2px}
 
+/* chips */
 .opts{display:flex;flex-wrap:wrap;gap:var(--s-2)}
 .opt{position:relative;display:inline-flex}
 .opt input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
 .opt span{display:inline-flex;align-items:center;gap:var(--s-2);min-height:44px;padding:0 var(--s-4);border-radius:var(--r-pill);
-  box-shadow:inset 0 0 0 1px var(--line-strong);color:var(--ink-muted);font-size:.9375rem;transition:color .2s,background .2s,box-shadow .2s;pointer-events:none}
+  box-shadow:inset 0 0 0 1px var(--line-strong);color:var(--ink-muted);font-size:var(--t-sm);transition:color .2s,background .2s,box-shadow .2s;pointer-events:none}
 .opt:hover span{color:var(--ink)}
-.opt input:checked + span{color:var(--ink);background:rgba(16,185,129,.12);box-shadow:inset 0 0 0 1px var(--em)}
+.opt input:checked + span{color:var(--ink);background:var(--em-wash);box-shadow:inset 0 0 0 1px var(--em)}
 .opt input:checked + span::before{content:"";width:5px;height:10px;border:solid var(--em);border-width:0 2px 2px 0;transform:translateY(-2px) rotate(45deg)}
 .opt input:focus-visible + span{outline:2px solid var(--em);outline-offset:2px}
 
 .err{font-size:var(--t-xs);color:var(--error);display:flex;gap:var(--s-2);align-items:flex-start}
 .err:empty{display:none}
 .err::before{content:"!";flex:none;display:grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--error);color:var(--ground);font-weight:700;font-size:11px;line-height:1}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-5)}
 
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s-2);min-height:52px;width:100%;padding:0 var(--s-6);border-radius:var(--r-pill);
-  font:600 var(--t-0)/1 var(--font);letter-spacing:-.01em;text-decoration:none;cursor:pointer;border:0;
+/* ---------- ficha "Tu solicitud": el único objeto levantado ---------- */
+.ticket{grid-area:ticket;display:grid;gap:var(--s-5);padding:var(--s-6);border-radius:var(--r-panel);
+  background:linear-gradient(180deg,rgba(18,24,22,.96),rgba(12,16,15,.96));
+  box-shadow:inset 0 0 0 1px var(--line),0 30px 80px -40px rgba(0,0,0,.8);transition:box-shadow .5s}
+.ticket.ready,.ticket.sent{box-shadow:inset 0 0 0 1px rgba(16,185,129,.6),0 30px 80px -40px rgba(0,0,0,.8)}
+.t-top{display:flex;justify-content:space-between;align-items:center;gap:var(--s-4)}
+.t-top .logo-negocia{height:22px;width:71.7px}
+.t-state{display:inline-flex;align-items:center;gap:var(--s-2);font-size:var(--t-xs);color:var(--ink-muted);padding:4px 10px;border-radius:var(--r-pill);box-shadow:inset 0 0 0 1px var(--line)}
+.t-state::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ink-muted)}
+.ticket.ready .t-state,.ticket.sent .t-state{color:var(--ink);box-shadow:inset 0 0 0 1px rgba(16,185,129,.6)}
+.ticket.ready .t-state::before,.ticket.sent .t-state::before{background:var(--em)}
+.t-rule{width:64px;height:2px;border-radius:2px;background:var(--grad)}
+.ticket h2{font-size:var(--t-2);letter-spacing:-.03em;line-height:1.15}
+.ticket dl{display:grid;gap:var(--s-4)}
+.ticket dt{font-size:var(--t-xs);color:var(--ink-muted);margin-bottom:2px}
+.ticket dd{font-size:var(--t-sm);line-height:1.5;overflow-wrap:anywhere}
+.ticket .row{border-radius:6px;padding:2px 6px;margin-inline:-6px}
+.ticket .empty{color:var(--ink-muted)}
+.ticket .tick{animation:tick .8s var(--ease)}
+@keyframes tick{0%{background:rgba(16,185,129,.22)}100%{background:transparent}}
+.pieces{display:flex;flex-wrap:wrap;gap:var(--s-2)}
+.pieces span{font-size:var(--t-xs);padding:4px 10px;border-radius:var(--r-pill);box-shadow:inset 0 0 0 1px var(--line);color:var(--ink-muted);transition:color .3s,background .3s,box-shadow .3s}
+.pieces span.on{color:var(--ink);background:var(--em-wash);box-shadow:inset 0 0 0 1px rgba(16,185,129,.6)}
+.t-done{display:grid;gap:var(--s-5);padding-top:var(--s-5);border-top:1px solid var(--line)}
+.t-done p{color:var(--ink-muted)}
+.steps{list-style:none;display:grid;gap:var(--s-4);counter-reset:s}
+.steps li{display:grid;grid-template-columns:28px 1fr;gap:var(--s-3);align-items:start;counter-increment:s}
+.steps li::before{content:counter(s);display:grid;place-items:center;width:28px;height:28px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--em);color:var(--em);font-weight:600;font-size:var(--t-xs)}
+.steps b{display:block;font-weight:600;font-size:var(--t-sm)}
+.steps span{color:var(--ink-muted);font-size:var(--t-sm)}
+.t-actions{display:grid;gap:var(--s-3)}
+.kiosk-note{font-size:var(--t-xs);color:var(--ink-muted)}
+
+/* ---------- barra de envío ---------- */
+.sendbar{grid-area:send;display:grid;gap:var(--s-3);padding-block:var(--s-6) var(--s-4)}
+.send-row{display:flex;align-items:center;gap:var(--s-4)}
+.missing{flex:1;min-width:0;font-size:var(--t-xs);color:var(--ink-muted);line-height:1.4}
+.missing.ok{color:var(--em)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s-2);min-height:52px;padding:0 var(--s-6);border-radius:var(--r-pill);
+  font:600 var(--t-0)/1 var(--font);letter-spacing:-.01em;text-decoration:none;white-space:nowrap;cursor:pointer;border:0;
   color:#04110c;background:var(--em);transition:transform .2s var(--ease),background-color .2s}
 .btn:hover{background:#34d399}
 .btn:active{transform:scale(.98)}
@@ -132,27 +168,43 @@ fieldset.grp{border:0;min-width:0}
 .form-status{font-size:var(--t-xs);color:var(--error)}
 .form-status:empty{display:none}
 
-/* ---------- confirmación ---------- */
-.done{display:grid;gap:var(--s-5);padding:var(--s-6);border-radius:var(--r-panel);background:var(--surface);box-shadow:inset 0 0 0 1px rgba(16,185,129,.6)}
-.done .rule{width:64px;height:2px;border-radius:2px;background:var(--grad)}
-.done h2{font-size:var(--t-2)}
-.done p{color:var(--ink-muted)}
-.done ol{list-style:none;display:grid;gap:var(--s-4);counter-reset:s}
-.done li{display:grid;grid-template-columns:32px 1fr;gap:var(--s-3);align-items:start;counter-increment:s}
-.done li::before{content:counter(s);display:grid;place-items:center;width:32px;height:32px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--em);color:var(--em);font-weight:600;font-size:.9375rem}
-.done li b{display:block;font-weight:600}
-.done li span{color:var(--ink-muted);font-size:.9375rem}
-.done .actions{display:grid;gap:var(--s-3)}
+body.sent .sendbar{display:none}
 
 footer{padding-block:var(--s-7) var(--s-6);font-size:var(--t-xs);color:var(--ink-muted)}
 footer .wrap{display:flex;gap:var(--s-4);justify-content:space-between;flex-wrap:wrap}
 
-@media (max-width:520px){
-  form.prop,.done{padding:var(--s-5)}
-  .two{grid-template-columns:1fr}
+/* móvil y iPad vertical: la barra queda fija abajo mientras se llena el formulario */
+@media (max-width:959px){
+  .ticket{margin-top:var(--s-4)}
+  .sendbar{position:sticky;bottom:0;z-index:20;margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));
+    padding:var(--s-3) max(16px,env(safe-area-inset-right,0px)) calc(var(--s-3) + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+    background:rgba(6,8,7,.86);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);border-top:1px solid var(--line)}
+  .sendbar .fine{display:none}
+  body.sent .intro{display:none}
+  body.sent .ticket{margin-top:0}
 }
-@media (max-width:360px){.paths{grid-template-columns:1fr}}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important}}
+@media (max-width:520px){
+  .two{grid-template-columns:1fr}
+  .ticket{padding:var(--s-5)}
+  .btn{padding:0 var(--s-5)}
+}
+@media (max-width:360px){.paths{grid-template-columns:1fr}.send-row{flex-direction:column;align-items:stretch}}
+@media (min-width:700px) and (max-width:959px){.intro{padding-block:var(--s-6) var(--s-7)}}
+
+/* iPad horizontal y escritorio */
+@media (min-width:960px){
+  .wrap{max-width:calc(var(--max-wide) + 32px)}
+  .layout{grid-template-columns:minmax(0,5fr) minmax(0,7fr);column-gap:var(--s-8);
+    grid-template-areas:"intro form" "ticket form" "ticket send";grid-template-rows:auto 1fr auto;padding-top:var(--s-4)}
+  .intro{padding-block:0 var(--s-6)}
+  .ticket{position:sticky;top:var(--s-5)}
+  .sendbar{padding-top:var(--s-5);border-top:1px solid var(--line)}
+  .send-row{flex-direction:row-reverse;justify-content:flex-end}
+  .missing{flex:1}
+  body.sent .layout{grid-template-areas:"intro ticket";grid-template-rows:auto}
+  body.sent .ticket{position:static}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
@@ -193,15 +245,8 @@ footer .wrap{display:flex;gap:var(--s-4);justify-content:space-between;flex-wrap
 <main class="wrap layout">
   <div class="intro">
     <h1>Cuéntanos qué frena tu negocio.</h1>
-    <p class="lead">Páginas web, automatizaciones, bases de datos y sistemas con IA. Te respondemos por WhatsApp.</p>
-    <ol class="next" aria-label="Qué pasa después">
-      <li><div><b>Conversamos</b><span>Nos cuentas qué frena tu negocio, sin tecnicismos.</span></div></li>
-      <li><div><b>Te damos dos caminos</b><span>Cada propuesta trae dos opciones con precio cerrado en dólares.</span></div></li>
-      <li><div><b>Arrancamos</b><span>50 % de anticipo y 50 % contra la entrega final.</span></div></li>
-    </ol>
+    <p class="lead">Lo traducimos a una propuesta con precio cerrado en dólares, o lo vemos juntos en un diagnóstico gratis de 30 minutos.</p>
   </div>
-
-  <div class="col">
 
   <form class="prop" id="prop" novalidate>
     <fieldset class="grp"><legend>Qué quieres recibir</legend><div class="grp-body">
@@ -245,28 +290,46 @@ footer .wrap{display:flex;gap:var(--s-4);justify-content:space-between;flex-wrap
     </div></fieldset>
 
     <input type="text" name="_honey" id="f-honey" tabindex="-1" autocomplete="off" class="sr" aria-hidden="true">
-    <div class="grp-body">
-      <button class="btn" type="submit" id="send">Enviar solicitud</button>
-      <p class="form-status" id="form-status" role="alert"></p>
-      <p class="fine">Usamos tus datos solo para responderte. Primero conversamos; el precio llega cerrado en la propuesta.</p>
-    </div>
   </form>
 
-  <section class="done" id="done" hidden tabindex="-1" aria-labelledby="done-h">
-    <div class="rule"></div>
-    <h2 id="done-h">Recibimos tu solicitud.</h2>
-    <p id="done-p">Te escribimos por WhatsApp.</p>
-    <ol>
-      <li><div><b>Conversamos</b><span>Nos cuentas qué frena tu negocio, sin tecnicismos.</span></div></li>
-      <li><div><b>Te damos dos caminos</b><span>Cada propuesta trae dos opciones con precio cerrado en dólares.</span></div></li>
-      <li><div><b>Arrancamos</b><span>50 % de anticipo y 50 % contra la entrega final.</span></div></li>
-    </ol>
-    <div class="actions">
-      <a class="btn" href="./">Ver lo que hacemos</a>
-      <button class="btn btn-ghost" type="button" id="again">Enviar otra solicitud</button>
+  <aside class="ticket" id="ticket" tabindex="-1" aria-label="Tu solicitud">
+    <div class="t-top">
+      <svg class="logo-negocia" role="img" aria-label="NegocIA"><use href="#logomark-negocia"/></svg>
+      <span class="t-state" id="t-state">Borrador</span>
     </div>
-    <p class="kiosk-note" id="kiosk-note" aria-live="polite" hidden></p>
-  </section>
+    <div class="t-rule"></div>
+    <h2 id="t-title" class="row">Propuesta para tu negocio</h2>
+    <dl>
+      <div><dt>Qué recibes</dt><dd id="t-recibes" class="row">Dos caminos con precio cerrado en dólares, qué incluye y qué no.</dd></div>
+      <div><dt>Piezas en juego</dt><dd class="row"><div class="pieces" id="t-pieces">
+        <span data-v="Página web">Página web</span><span data-v="Sistema con IA">Sistema con IA</span><span data-v="Automatización">Automatización</span><span data-v="Base de datos">Base de datos</span>
+      </div></dd></div>
+      <div><dt>Lo que nos contaste</dt><dd id="t-need" class="row empty">Aquí aparece lo que quieres resolver.</dd></div>
+      <div><dt>Para cuándo</dt><dd id="t-plazo" class="row empty">Sin fecha todavía</dd></div>
+      <div><dt>Te respondemos por WhatsApp</dt><dd id="t-wa" class="row empty">Falta tu número</dd></div>
+    </dl>
+    <div class="t-done" id="t-done" hidden>
+      <p id="t-done-p" aria-live="polite"></p>
+      <ol class="steps">
+        <li><div><b>Conversamos</b><span>Nos cuentas qué frena tu negocio, sin tecnicismos.</span></div></li>
+        <li><div><b>Te damos dos caminos</b><span>Cada propuesta trae dos opciones con precio cerrado en dólares.</span></div></li>
+        <li><div><b>Arrancamos</b><span>50 % de anticipo y 50 % contra la entrega final.</span></div></li>
+      </ol>
+      <div class="t-actions">
+        <a class="btn" href="./" id="see">Ver lo que hacemos</a>
+        <button class="btn btn-ghost" type="button" id="again">Enviar otra solicitud</button>
+      </div>
+      <p class="kiosk-note" id="kiosk-note" aria-live="polite" hidden></p>
+    </div>
+  </aside>
+
+  <div class="sendbar" id="sendbar">
+    <div class="send-row">
+      <p class="missing" id="missing" aria-live="polite">Falta tu nombre y tu WhatsApp.</p>
+      <button class="btn" type="submit" form="prop" id="send">Pedir mi propuesta</button>
+    </div>
+    <p class="form-status" id="form-status" role="alert"></p>
+    <p class="fine">Usamos tus datos solo para responderte. Primero conversamos; el precio llega cerrado en la propuesta.</p>
   </div>
 </main>
 
@@ -280,28 +343,33 @@ footer .wrap{display:flex;gap:var(--s-4);justify-content:space-between;flex-wrap
 // Dónde caen los leads. Si WEBHOOK_URL tiene valor (n8n), se usa primero; FormSubmit queda de respaldo.
 const WEBHOOK_URL = '';
 const FORMSUBMIT_EMAIL = 'isaac150305@gmail.com'; // mismo correo de las propuestas de NegocIA
-// Nombre del evento: se guarda con cada lead. También se puede pasar en el enlace del QR: evento.html?e=Nombre
-const EVENTO = new URLSearchParams(location.search).get('e') || 'Evento';
-const QUEUE_KEY = 'negocia-leads-pendientes';
-// Modo kiosco (iPad en el stand): evento.html?e=Nombre&kiosco — tras enviar, el formulario se limpia solo para la siguiente persona.
-const KIOSCO = new URLSearchParams(location.search).has('kiosco');
+// Nombre del evento: se guarda con cada lead. También se puede pasar en el enlace del QR: evento?e=Nombre
+const params = new URLSearchParams(location.search);
+const EVENTO = params.get('e') || 'Evento';
+// Modo kiosco (iPad en el stand): evento?e=Nombre&kiosco — tras enviar, el formulario se limpia solo para la siguiente persona.
+const KIOSCO = params.has('kiosco');
 const KIOSCO_SEG = 12;
-let kioskTimer = null;
+const QUEUE_KEY = 'negocia-leads-pendientes';
 
 const $ = s => document.querySelector(s);
-const form = $('#prop'), btn = $('#send'), status = $('#form-status');
+const form = $('#prop'), btn = $('#send'), status = $('#form-status'), ticket = $('#ticket');
 const F = { nombre: $('#f-nombre'), whatsapp: $('#f-whatsapp'), correo: $('#f-correo') };
+const TIPO = {
+  'Propuesta con precio': { btn: 'Pedir mi propuesta', title: 'Propuesta', recibes: 'Dos caminos con precio cerrado en dólares, qué incluye y qué no.' },
+  'Diagnóstico gratuito': { btn: 'Agendar mi diagnóstico', title: 'Diagnóstico', recibes: '30 minutos para ver qué se puede automatizar en tu negocio. Sin costo.' },
+};
 
 const rules = {
   nombre: v => v.trim().length >= 2 || 'Escribe tu nombre para saber a quién respondemos.',
   whatsapp: v => v.replace(/\D/g, '').length >= 10 || 'Escribe tu número con código de país, por ejemplo +58 412 1234567.',
   correo: v => !v.trim() || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) || 'Revisa el correo: falta la @ o el dominio. También puedes dejarlo vacío.',
 };
+const ok = n => rules[n](F[n].value) === true;
 function check(n) {
-  const r = rules[n](F[n].value), ok = r === true;
-  F[n].setAttribute('aria-invalid', ok ? 'false' : 'true');
-  $('#e-' + n).textContent = ok ? '' : r;
-  return ok;
+  const r = rules[n](F[n].value), good = r === true;
+  F[n].setAttribute('aria-invalid', good ? 'false' : 'true');
+  $('#e-' + n).textContent = good ? '' : r;
+  return good;
 }
 Object.keys(rules).forEach(n => F[n].addEventListener('blur', () => { if (F[n].value) check(n); }));
 Object.keys(rules).forEach(n => F[n].addEventListener('input', () => { if (F[n].getAttribute('aria-invalid') === 'true') check(n); }));
@@ -322,6 +390,37 @@ function lead() {
   };
 }
 
+// ---- Ficha en vivo: cada cambio se refleja en "Tu solicitud", con un destello en la fila que cambió ----
+function set(el, text, empty) {
+  const was = el.textContent;
+  el.textContent = text; el.classList.toggle('empty', !!empty);
+  if (was !== text && !empty) { el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick'); }
+}
+function draft() {
+  if (document.body.classList.contains('sent')) return;
+  const d = lead(), t = TIPO[d.tipo];
+  const quien = d.negocio || d.nombre;
+  set($('#t-title'), `${t.title} para ${quien || 'tu negocio'}`, false);
+  set($('#t-recibes'), t.recibes, false);
+  const sel = d.servicios.split(', ');
+  const unsure = sel.includes('No estoy seguro');
+  $('#t-pieces').querySelectorAll('span').forEach(s => s.classList.toggle('on', sel.includes(s.dataset.v)));
+  set($('#t-need'), d.necesidad || (unsure ? 'Lo definimos juntos en la conversación.' : 'Aquí aparece lo que quieres resolver.'), !d.necesidad && !unsure);
+  set($('#t-plazo'), d.plazo === 'Sin fecha' ? 'Sin fecha todavía' : d.plazo, d.plazo === 'Sin fecha');
+  set($('#t-wa'), d.whatsapp || 'Falta tu número', !d.whatsapp);
+  btn.textContent = t.btn;
+  const falta = [!ok('nombre') && 'tu nombre', !ok('whatsapp') && 'tu WhatsApp'].filter(Boolean);
+  const ready = !falta.length && ok('correo');
+  ticket.classList.toggle('ready', ready);
+  $('#t-state').textContent = ready ? 'Lista para enviar' : 'Borrador';
+  const m = $('#missing');
+  m.classList.toggle('ok', ready);
+  m.textContent = ready ? 'Lista para enviar.' : falta.length ? `Falta ${falta.join(' y ')}.` : 'Revisa el correo o déjalo vacío.';
+}
+form.addEventListener('input', draft);
+form.addEventListener('change', draft);
+
+// ---- Envío ----
 async function post(url, data) {
   const ctrl = new AbortController(), t = setTimeout(() => ctrl.abort(), 12000);
   try {
@@ -340,7 +439,7 @@ async function send(data) {
   if (String(j.success) !== 'true') throw new Error(j.message || 'FormSubmit no confirmó el envío');
 }
 
-// Cola local: si la red del evento falla, el lead se guarda en el teléfono y se reintenta al volver la conexión.
+// Cola local: si la red del evento falla, el lead se guarda en el dispositivo y se reintenta al volver la conexión.
 const readQ = () => { try { return JSON.parse(localStorage.getItem(QUEUE_KEY)) || []; } catch { return []; } };
 const writeQ = q => { try { q.length ? localStorage.setItem(QUEUE_KEY, JSON.stringify(q)) : localStorage.removeItem(QUEUE_KEY); return true; } catch { return false; } };
 let flushing = false;
@@ -355,17 +454,23 @@ async function flush() {
 }
 window.addEventListener('online', flush);
 flush();
+if (KIOSCO) setInterval(flush, 30000);
 
+let kioskTimer = null;
 function showDone(data, queued) {
-  $('#done-h').textContent = `Recibimos tu solicitud, ${data.nombre.split(' ')[0]}.`;
-  $('#done-p').textContent = queued
-    ? 'Sin conexión por ahora: la guardamos en tu teléfono y se envía sola cuando vuelva la señal. No cierres esta pestaña todavía.'
+  document.body.classList.add('sent');
+  form.hidden = true;
+  ticket.classList.remove('ready'); ticket.classList.add('sent');
+  $('#t-state').textContent = queued ? 'Guardada' : 'Enviada';
+  $('#t-title').textContent = `Recibimos tu solicitud, ${data.nombre.split(' ')[0]}.`;
+  $('#t-done-p').textContent = queued
+    ? 'Sin conexión por ahora: la guardamos en este dispositivo y se envía sola cuando vuelva la señal. No cierres esta pestaña todavía.'
     : `Te escribimos al ${data.whatsapp} por WhatsApp.`;
-  form.hidden = true; $('#done').hidden = false; $('#done').focus();
-  window.scrollTo({ top: 0 });
+  $('#t-done').hidden = false;
+  window.scrollTo({ top: 0 }); ticket.focus({ preventScroll: true });
   if (KIOSCO) {
     // En kiosco el lead nunca se queda solo en este iPad: la cola local sigue reintentando mientras la página esté abierta.
-    $('#done').querySelector('a.btn').hidden = true;
+    $('#see').hidden = true;
     let n = KIOSCO_SEG; const note = $('#kiosk-note'); note.hidden = false;
     const tick = () => { note.textContent = `El formulario se limpia en ${n} s para la siguiente persona.`; if (n-- <= 0) reset(); };
     tick(); kioskTimer = setInterval(tick, 1000);
@@ -375,7 +480,9 @@ function reset() {
   clearInterval(kioskTimer); kioskTimer = null; $('#kiosk-note').hidden = true;
   form.reset(); Object.values(F).forEach(f => f.removeAttribute('aria-invalid'));
   Object.keys(rules).forEach(n => { $('#e-' + n).textContent = ''; });
-  $('#done').hidden = true; form.hidden = false; window.scrollTo({ top: 0 });
+  document.body.classList.remove('sent'); ticket.classList.remove('sent');
+  $('#t-done').hidden = true; form.hidden = false; window.scrollTo({ top: 0 });
+  draft();
 }
 
 form.addEventListener('submit', async e => {
@@ -384,18 +491,18 @@ form.addEventListener('submit', async e => {
   if ($('#f-honey').value) return;
   const bad = Object.keys(rules).filter(n => !check(n));
   if (bad.length) { F[bad[0]].focus(); return; }
-  const data = lead();
+  const data = lead(), label = btn.textContent;
   btn.disabled = true; btn.textContent = 'Enviando…';
   try { await send(data); showDone(data, false); }
   catch {
     if (writeQ([...readQ(), data])) showDone(data, true);
     else status.textContent = `No pudimos enviarla por la conexión. Inténtalo de nuevo en un momento o escríbenos a ${FORMSUBMIT_EMAIL}.`;
   }
-  finally { btn.disabled = false; btn.textContent = 'Enviar solicitud'; }
+  finally { btn.disabled = false; btn.textContent = label; }
 });
 
 $('#again').addEventListener('click', () => { reset(); if (!KIOSCO) F.nombre.focus(); });
-if (KIOSCO) setInterval(flush, 30000);
+draft();
 })();
 </script>
 </body>
