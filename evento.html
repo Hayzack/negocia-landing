@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NegocIA · Pide tu propuesta</title>
+<meta name="description" content="Déjanos tus datos y te enviamos una propuesta con precio cerrado o agendamos un diagnóstico gratuito de 30 minutos.">
+<meta name="theme-color" content="#060807">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..800&display=swap" rel="stylesheet">
+<style>
+/* Página de leads para eventos: mismos tokens que index.html (tema oscuro fijo, esmeralda→azul). Una columna, pensada para abrirse desde un QR. */
+:root{
+  color-scheme: dark;
+  --ground:#060807;
+  --surface:#0c100f;
+  --line:rgba(214,240,228,.11);
+  --line-strong:rgba(214,240,228,.22);
+  --ink:#ecf3ef;
+  --ink-muted:#9ba7a1;
+  --em:#10b981;
+  --az:#2563eb;
+  --error:#f87171;
+  --grad:linear-gradient(100deg,var(--em),var(--az));
+  --font:"Geist",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --t-xs:.8125rem; --t-0:1rem; --t-1:1.25rem; --t-2:1.5625rem; --t-3:clamp(2rem,7vw,3.05rem);
+  --s-1:4px;--s-2:8px;--s-3:12px;--s-4:16px;--s-5:24px;--s-6:32px;--s-7:48px;--s-8:64px;
+  --r-panel:20px; --r-field:12px; --r-pill:999px;
+  --max:640px;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--ground);color:var(--ink);font-family:var(--font);font-size:var(--t-0);line-height:1.55;overflow-x:clip;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(90% 50% at 90% -10%,rgba(16,185,129,.12),transparent 60%),radial-gradient(70% 40% at 0% 0%,rgba(37,99,235,.09),transparent 60%)}
+header,main,footer{position:relative;z-index:1}
+a{color:inherit}
+h1,h2{font-weight:600;letter-spacing:-.035em;line-height:1.05;text-wrap:balance}
+p{text-wrap:pretty}
+:focus-visible{outline:2px solid var(--em);outline-offset:3px;border-radius:6px}
+.wrap{width:100%;max-width:calc(var(--max) + 2*16px);margin-inline:auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+.top{padding-block:var(--s-5)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--s-4)}
+.logo-negocia{display:block;height:28px;width:91.3px}
+.top a.more{font-size:.9375rem;color:var(--ink-muted);text-underline-offset:4px}
+.top a.more:hover{color:var(--ink)}
+
+.intro{display:grid;gap:var(--s-4);padding-block:var(--s-5) var(--s-6)}
+.intro h1{font-size:var(--t-3);letter-spacing:-.045em;max-width:16ch}
+.lead{font-size:var(--t-1);color:var(--ink-muted);line-height:1.45;max-width:36ch}
+
+/* ---------- formulario ---------- */
+form.prop{display:grid;gap:var(--s-6);padding:var(--s-6);border-radius:var(--r-panel);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+fieldset.grp{border:0;min-width:0}
+.grp legend{float:left;width:100%;font-size:var(--t-1);font-weight:600;letter-spacing:-.02em;margin-bottom:var(--s-4)}
+.grp-body{clear:both;display:grid;gap:var(--s-5)}
+.field{display:grid;gap:var(--s-2)}
+.field label,.lbl{font-size:.9375rem;font-weight:500}
+.hint{font-size:var(--t-xs);color:var(--ink-muted);font-weight:400}
+.field input,.field textarea{width:100%;border-radius:var(--r-field);border:1px solid var(--line-strong);background:var(--ground);color:var(--ink);
+  font:400 var(--t-0)/1.5 var(--font);padding:var(--s-3) var(--s-4);min-height:48px}
+.field ::placeholder{color:var(--ink-muted);opacity:1}
+.field textarea{min-height:96px;resize:vertical}
+.field input:focus-visible,.field textarea:focus-visible{outline:2px solid var(--em);outline-offset:1px}
+.field [aria-invalid="true"]{border-color:var(--error)}
+
+/* tipo de solicitud: dos caminos, el único bloque que se levanta */
+.paths{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-3)}
+.path{position:relative;display:block;cursor:pointer}
+.path input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.path span{display:grid;gap:var(--s-1);height:100%;padding:var(--s-4);border-radius:14px;background:var(--ground);
+  box-shadow:inset 0 0 0 1px var(--line-strong);transition:box-shadow .2s,background .2s;pointer-events:none}
+.path b{font-weight:600;font-size:var(--t-0);letter-spacing:-.01em}
+.path small{font-size:var(--t-xs);color:var(--ink-muted);line-height:1.45}
+.path input:checked + span{background:rgba(16,185,129,.09);box-shadow:inset 0 0 0 1.5px var(--em)}
+.path input:focus-visible + span{outline:2px solid var(--em);outline-offset:2px}
+
+.opts{display:flex;flex-wrap:wrap;gap:var(--s-2)}
+.opt{position:relative;display:inline-flex}
+.opt input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.opt span{display:inline-flex;align-items:center;gap:var(--s-2);min-height:44px;padding:0 var(--s-4);border-radius:var(--r-pill);
+  box-shadow:inset 0 0 0 1px var(--line-strong);color:var(--ink-muted);font-size:.9375rem;transition:color .2s,background .2s,box-shadow .2s;pointer-events:none}
+.opt:hover span{color:var(--ink)}
+.opt input:checked + span{color:var(--ink);background:rgba(16,185,129,.12);box-shadow:inset 0 0 0 1px var(--em)}
+.opt input:checked + span::before{content:"";width:5px;height:10px;border:solid var(--em);border-width:0 2px 2px 0;transform:translateY(-2px) rotate(45deg)}
+.opt input:focus-visible + span{outline:2px solid var(--em);outline-offset:2px}
+
+.err{font-size:var(--t-xs);color:var(--error);display:flex;gap:var(--s-2);align-items:flex-start}
+.err:empty{display:none}
+.err::before{content:"!";flex:none;display:grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--error);color:var(--ground);font-weight:700;font-size:11px;line-height:1}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-5)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s-2);min-height:52px;width:100%;padding:0 var(--s-6);border-radius:var(--r-pill);
+  font:600 var(--t-0)/1 var(--font);letter-spacing:-.01em;text-decoration:none;cursor:pointer;border:0;
+  color:#04110c;background:var(--em);transition:transform .2s var(--ease),background-color .2s}
+.btn:hover{background:#34d399}
+.btn:active{transform:scale(.98)}
+.btn[disabled]{opacity:.6;cursor:progress}
+.btn-ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line-strong)}
+.btn-ghost:hover{background:rgba(236,243,239,.06)}
+.fine{font-size:var(--t-xs);color:var(--ink-muted)}
+.form-status{font-size:var(--t-xs);color:var(--error)}
+.form-status:empty{display:none}
+
+/* ---------- confirmación ---------- */
+.done{display:grid;gap:var(--s-5);padding:var(--s-6);border-radius:var(--r-panel);background:var(--surface);box-shadow:inset 0 0 0 1px rgba(16,185,129,.6)}
+.done .rule{width:64px;height:2px;border-radius:2px;background:var(--grad)}
+.done h2{font-size:var(--t-2)}
+.done p{color:var(--ink-muted)}
+.done ol{list-style:none;display:grid;gap:var(--s-4);counter-reset:s}
+.done li{display:grid;grid-template-columns:32px 1fr;gap:var(--s-3);align-items:start;counter-increment:s}
+.done li::before{content:counter(s);display:grid;place-items:center;width:32px;height:32px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--em);color:var(--em);font-weight:600;font-size:.9375rem}
+.done li b{display:block;font-weight:600}
+.done li span{color:var(--ink-muted);font-size:.9375rem}
+.done .actions{display:grid;gap:var(--s-3)}
+
+footer{padding-block:var(--s-7) var(--s-6);font-size:var(--t-xs);color:var(--ink-muted)}
+footer .wrap{display:flex;gap:var(--s-4);justify-content:space-between;flex-wrap:wrap}
+
+@media (max-width:520px){
+  form.prop,.done{padding:var(--s-5)}
+  .two{grid-template-columns:1fr}
+}
+@media (max-width:360px){.paths{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs><linearGradient gradientUnits="userSpaceOnUse" id="negociagrad" x1="1543.85" x2="1874.85" y1="1003.54" y2="1005.21">
+    <stop offset="0" stop-color="rgb(10,255,213)"/><stop offset="1" stop-color="rgb(43,83,255)"/>
+  </linearGradient></defs>
+  <symbol id="logomark-negocia" viewBox="160 768 1735 532">
+    <path d="M 822.088 941.392 C 856.471 941.556 885.677 949.056 903.566 980.81 C 906.603 972.946 911.393 965.879 917.571 960.144 C 933.452 945.587 951.755 944.263 971.963 944.934 C 971.372 990.662 971.986 1036.47 971.823 1082.2 C 971.667 1125.89 976.396 1167.22 953.72 1206.92 C 912.281 1279.48 794.344 1265.05 733.573 1229.59 L 742.112 1215.87 C 748.652 1205.34 755.274 1194.85 761.977 1184.42 C 804.628 1210.97 888.787 1227.76 901.002 1157.46 C 902.35 1149.7 902.044 1141.37 902.021 1133.46 C 882.179 1154 868.33 1160.84 839.053 1163.84 C 731.269 1174.88 683.117 1054.57 745.201 975.968 C 762.908 953.55 793.369 943.343 822.088 941.392 z" fill="rgb(255,255,255)"/>
+    <path d="M 844.723 995.478 C 876.412 995.535 902.052 1021.27 901.989 1052.96 C 901.927 1084.65 876.184 1110.29 844.496 1110.22 C 812.814 1110.15 787.184 1084.42 787.247 1052.74 C 787.31 1021.05 813.041 995.42 844.723 995.478 z" fill="rgb(0,0,0)"/>
+    <path d="M 180.784 834.676 C 224.644 841.671 251.904 883.128 278.809 914.51 C 314.695 956.368 347.342 1002.2 383.51 1043.65 L 383.702 970.008 C 383.668 954.273 382.901 932.367 385.086 917.449 C 386.73 905.778 390.349 894.472 395.786 884.016 C 409.369 858.05 429.667 843.402 457.094 834.999 L 457.079 1152.57 L 457.145 1175.81 C 450.924 1177.17 444.517 1177.47 438.197 1176.68 C 396.107 1171.74 361.869 1121.81 336.347 1091.26 C 308.512 1058.22 281.076 1024.84 254.043 991.137 C 252.964 1051.39 253.79 1114.1 253.833 1174.55 L 180.882 1174.52 L 180.784 834.676 z" fill="rgb(255,255,255)"/>
+    <path d="M 1109.55 937.149 C 1177.4 935.062 1234.05 988.437 1236.01 1056.28 C 1237.96 1124.13 1184.47 1180.68 1116.62 1182.5 C 1048.96 1184.32 992.603 1131.01 990.654 1063.35 C 988.704 995.695 1041.9 939.231 1109.55 937.149 z" fill="rgb(255,255,255)"/>
+    <path d="M 1105.84 1000.25 C 1183.25 994.326 1191.71 1105.87 1121.81 1119.04 C 1114.24 1119.34 1107.95 1119.55 1100.41 1117.86 C 1060.35 1108.87 1046.55 1056.68 1067.37 1024.45 C 1076.73 1009.96 1089.38 1003.54 1105.84 1000.25 z" fill="rgb(0,0,0)"/>
+    <path d="M 1652.38 928.292 C 1657.15 916.556 1662.15 904.92 1667.4 893.391 C 1681.24 862.185 1690.91 836.351 1730.94 835.383 C 1759.07 902.899 1787.63 970.233 1816.62 1037.38 C 1835.74 1082 1855.52 1130.46 1875.42 1174.38 L 1814.08 1174.89 C 1807.2 1158.4 1800.22 1141.05 1792.9 1124.82 C 1783.17 1125.62 1781.26 1126.34 1773.12 1119.1 C 1757.95 1105.62 1743.72 1087.54 1728.76 1074.17 C 1723 1079.21 1687.7 1116.32 1689.7 1088.73 C 1689.94 1085.3 1722.69 1052.13 1728.96 1049.52 C 1739.46 1049.31 1752.14 1058.93 1767.41 1061.74 C 1750.37 1016.47 1727.49 969.581 1711.5 924.337 C 1699.69 955.209 1685.74 985.694 1672.97 1016.21 C 1671.08 1020.73 1668.87 1025.93 1666.53 1030.2 C 1663.38 1038.95 1654.23 1054.96 1656.01 1061.31 C 1668.58 1071.09 1701.09 1041.6 1712.1 1054.88 C 1707.04 1064.93 1682.05 1081.14 1683.99 1094.65 C 1696.85 1117.1 1717.48 1089.63 1728.45 1080.96 C 1730.2 1082.75 1735.03 1087.44 1736.32 1089.17 C 1740.07 1100.91 1743.92 1093.56 1742.8 1104.52 C 1741.11 1121.04 1740.87 1109.21 1732.48 1108.12 C 1730.2 1111.12 1729.82 1110.52 1730.13 1113.3 C 1737.04 1119.27 1744.47 1127.79 1750.6 1133.41 C 1773.06 1153.99 1751 1164.92 1736.16 1142.49 C 1735.12 1140.92 1727.32 1133.55 1725.36 1131.25 C 1721.37 1128.63 1722 1126.12 1715.43 1124.44 L 1714.61 1125.3 C 1721.11 1135.32 1747.18 1153.72 1740.29 1163.87 C 1726.61 1170.69 1718.65 1145.61 1707.21 1143.64 C 1705.03 1143.27 1703.43 1142.47 1701.9 1140.9 C 1698.62 1126.58 1698.58 1131.32 1687.2 1127.32 C 1681.39 1110.23 1679.64 1118.69 1669.02 1115.39 C 1654.09 1097.6 1649.14 1112.88 1638.16 1123.44 C 1634.75 1126.72 1630.4 1125.38 1625.97 1124.64 C 1618.78 1141.14 1611.67 1157.68 1604.64 1174.25 L 1542.73 1174.03 L 1614.42 1012.96 C 1624.67 989.72 1640.84 949.723 1652.38 928.292 z" fill="url(#negociagrad)"/>
+    <path d="M 1730.13 1113.3 C 1737.04 1119.27 1744.47 1127.79 1750.6 1133.41 C 1773.06 1153.99 1751 1164.92 1736.16 1142.49 C 1735.12 1140.92 1727.32 1133.55 1725.36 1131.25 C 1731.61 1131.79 1742.79 1149.84 1741.39 1139.76 C 1740.74 1135.05 1741.49 1135.21 1742.6 1130.29 L 1742.92 1128.91 C 1737.4 1123.4 1733.09 1120.4 1730.13 1113.3 z" fill="rgb(37,99,235)"/>
+    <path d="M 575.45 942.304 C 629.692 936.148 681.362 960.543 703.004 1012.23 C 712.413 1034.7 713.769 1054.33 712.256 1078.36 L 542.755 1078.52 C 560.729 1133.33 619.2 1131.14 659.472 1102.88 L 671.211 1115.27 L 695.067 1139.81 C 635.565 1210.68 486.381 1179.23 473.558 1080.18 C 464.112 1007.21 503.403 953.592 575.45 942.304 z" fill="rgb(255,255,255)"/>
+    <path d="M 587.917 994.281 C 622.554 991.964 638.202 1005.05 646.452 1037.87 L 604.038 1037.81 C 583.384 1037.71 562.73 1037.74 542.076 1037.89 C 549.07 1012.85 561.133 998.794 587.917 994.281 z" fill="rgb(0,0,0)"/>
+    <path d="M 1365.73 941.454 C 1418.25 941.878 1444.14 952.105 1474.11 996.442 C 1458.07 1006.46 1439.43 1017.09 1423.02 1026.37 C 1419.09 1020.18 1416.37 1015.79 1410.79 1010.9 C 1387.57 990.3 1346.16 993.886 1326.85 1018.25 C 1292.69 1061.35 1322.85 1126.92 1380.58 1120.02 C 1399.53 1117.76 1410.45 1107.83 1421.33 1093.69 L 1445.94 1108.87 C 1455.71 1115.12 1464.93 1121.05 1475.03 1126.77 C 1472.53 1129.94 1469.94 1133.04 1467.27 1136.06 C 1420.47 1188.87 1333.46 1192.52 1281.59 1145.81 C 1258.56 1125.01 1244.83 1095.84 1243.48 1064.84 C 1239.59 989.012 1293.56 944.538 1365.73 941.454 z" fill="rgb(255,255,255)"/>
+    <path d="M 1532.19 913.398 L 1547.91 913.304 C 1546.44 971.346 1548.51 1030.44 1547.75 1088.67 C 1547.2 1131.14 1548.1 1166.71 1494.73 1175.09 L 1476.76 1175.26 L 1476.55 1023.23 C 1476.66 1002.93 1475.22 979.157 1477.97 959.375 C 1481.86 931.452 1505.82 915.266 1532.19 913.398 z" fill="rgb(16,253,220)"/>
+    <path d="M 1518.07 798.017 C 1527.66 797.769 1530.74 800.429 1533.38 809.298 C 1542.63 811.674 1553.71 813.625 1563.18 815.531 C 1563.34 815.302 1563.49 815.073 1563.64 814.844 L 1564.43 813.72 C 1581.8 788.529 1601.27 824.4 1581.47 832.973 C 1577.15 834.843 1570.24 831.672 1566.46 829.118 C 1556.82 834.389 1533.68 845.545 1526.94 852.452 C 1526.58 857.201 1527.1 858.743 1524.07 861.768 C 1520.43 862.584 1516.38 861.406 1512.62 860.692 C 1509.22 863.34 1497.61 870.445 1497.18 873.947 L 1498.94 875.719 C 1506.78 875.867 1519.52 873.373 1527.28 871.478 C 1528.47 869.876 1528.95 868.464 1529.6 866.591 C 1536.3 868.119 1543.35 872.63 1549.93 875.232 C 1555.45 877.415 1560.56 879.032 1566.25 880.735 C 1572.95 873.604 1584.06 871.857 1589.07 881.369 C 1590.53 884.15 1590.78 887.412 1589.76 890.383 C 1588.04 895.35 1584.47 897.14 1580.08 899.312 C 1562.49 898.766 1570.88 889.731 1564.2 885.37 C 1544.62 872.573 1518.69 876.917 1498.63 880.55 C 1490.79 902.906 1468.78 899.288 1466.24 883.092 C 1465.56 878.499 1466.73 873.825 1469.48 870.087 C 1476.29 860.94 1485.92 863.242 1493.89 869.218 C 1498.53 865.934 1510.16 860.132 1511.05 854.965 C 1508.52 847.169 1499.37 840.342 1492.44 836.097 C 1489.38 834.023 1486.15 835.569 1482.29 837.383 C 1466.88 844.619 1458.39 830.163 1466.6 818.14 C 1471.86 810.44 1480.88 812.076 1488.47 818.819 C 1519.93 808.969 1501.21 810.028 1518.07 798.017 z" fill="rgb(255,255,255)"/>
+    <path d="M 1532.55 813.102 C 1538.9 815.594 1557.49 817.429 1561.97 819.948 C 1573.59 826.467 1529.93 841.742 1528.19 845.735 C 1527.32 847.723 1517.64 847.816 1514.67 848.172 C 1514.41 848.223 1514.15 848.275 1513.89 848.327 C 1512.78 847.831 1491.76 830.159 1490.91 829.085 C 1484.43 820.918 1506.76 816.754 1511.24 815.057 C 1512.73 816.116 1513.61 817.613 1515.3 818.633 C 1521.07 822.113 1528.42 820.899 1531.61 814.766 L 1532.55 813.102 z" fill="rgb(0,0,0)"/>
+    <path d="M 1736.32 1089.17 C 1742.77 1095.51 1776.93 1127.62 1777.23 1134.51 C 1777.31 1136.38 1777.13 1138.37 1775.77 1139.79 C 1774.23 1141.4 1772.18 1141.97 1770 1141.99 C 1763.98 1142.06 1758.84 1134.99 1755.02 1130.99 C 1747.76 1123.39 1738.97 1116.27 1732.48 1108.12 C 1740.87 1109.21 1741.11 1121.04 1742.8 1104.52 C 1743.92 1093.56 1740.07 1100.91 1736.32 1089.17 z" fill="rgb(37,99,235)"/>
+    <path d="M 1672.16 1119.57 C 1683.07 1121.11 1684.75 1127.25 1678.15 1134.86 C 1672.8 1141.03 1670.47 1146.61 1663.52 1151.69 C 1640.83 1152.16 1666.88 1125.82 1672.16 1119.57 z" fill="rgb(16,253,220)"/>
+    <path d="M 1686.42 1132.91 C 1709.5 1131.66 1686.18 1156.02 1680.6 1162.13 C 1657.43 1161.48 1679.63 1139.81 1686.42 1132.91 z" fill="rgb(16,253,220)"/>
+    <path d="M 1655.08 1111.54 C 1669.38 1114.15 1665 1122.92 1658.04 1130.52 C 1654.58 1134.3 1653.34 1137.21 1649.05 1140.84 L 1648.62 1140.81 C 1625.98 1139.55 1648.89 1117.99 1655.08 1111.54 z" fill="rgb(16,253,220)"/>
+    <path d="M 1699.88 1146.77 C 1701.61 1147.28 1703.59 1147.91 1705.23 1148.7 C 1715.23 1153.52 1699.46 1169.71 1694.09 1173.62 C 1674.91 1169.76 1691.65 1153.08 1699.88 1146.77 z" fill="rgb(16,253,220)"/>
+    <path d="M 1714.18 1154.35 C 1723.78 1161.48 1729.88 1166.79 1719.79 1175.12 C 1711.88 1172.58 1712.95 1172.26 1707.72 1165.84 C 1711.5 1160.78 1712.14 1160.14 1714.18 1154.35 z" fill="rgb(35,173,243)"/>
+  </symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a href="./" aria-label="NegocIA, ir a la página principal"><svg class="logo-negocia" role="img" aria-label="NegocIA"><use href="#logomark-negocia"/></svg></a>
+    <a class="more" href="./">Ver lo que hacemos</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="intro">
+    <h1>Cuéntanos qué frena tu negocio.</h1>
+    <p class="lead">Páginas web, automatizaciones, bases de datos y sistemas con IA. Te respondemos por WhatsApp.</p>
+  </div>
+
+  <form class="prop" id="prop" novalidate>
+    <fieldset class="grp"><legend>Qué quieres recibir</legend><div class="grp-body">
+      <div class="paths">
+        <label class="path"><input type="radio" name="tipo" value="Propuesta con precio" checked><span><b>Una propuesta</b><small>Dos caminos con precio cerrado en dólares, qué incluye y qué no.</small></span></label>
+        <label class="path"><input type="radio" name="tipo" value="Diagnóstico gratuito"><span><b>Un diagnóstico gratis</b><small>30 minutos para ver qué se puede automatizar en tu negocio.</small></span></label>
+      </div>
+    </div></fieldset>
+
+    <fieldset class="grp"><legend>Qué te interesa</legend><div class="grp-body">
+      <div class="opts" role="group" aria-label="Servicios que te interesan">
+        <label class="opt"><input type="checkbox" name="piezas" value="Página web"><span>Página web</span></label>
+        <label class="opt"><input type="checkbox" name="piezas" value="Sistema con IA"><span>Sistema con IA</span></label>
+        <label class="opt"><input type="checkbox" name="piezas" value="Automatización"><span>Automatización</span></label>
+        <label class="opt"><input type="checkbox" name="piezas" value="Base de datos"><span>Base de datos</span></label>
+        <label class="opt"><input type="checkbox" name="piezas" value="No estoy seguro"><span>No estoy seguro</span></label>
+      </div>
+      <div class="field"><label for="f-necesidad">Qué quieres resolver <span class="hint">(opcional)</span></label>
+        <textarea id="f-necesidad" name="necesidad" maxlength="600" placeholder="Por ejemplo: mis clientes piden cotización por WhatsApp y respondo todo a mano"></textarea></div>
+    </div></fieldset>
+
+    <fieldset class="grp"><legend>Para cuándo</legend><div class="grp-body">
+      <div class="opts">
+        <label class="opt"><input type="radio" name="plazo" value="Lo antes posible"><span>Lo antes posible</span></label>
+        <label class="opt"><input type="radio" name="plazo" value="Este mes"><span>Este mes</span></label>
+        <label class="opt"><input type="radio" name="plazo" value="En los próximos meses"><span>En los próximos meses</span></label>
+        <label class="opt"><input type="radio" name="plazo" value="Estoy explorando"><span>Estoy explorando</span></label>
+      </div>
+    </div></fieldset>
+
+    <fieldset class="grp"><legend>Cómo te contactamos</legend><div class="grp-body">
+      <div class="two">
+        <div class="field"><label for="f-nombre">Tu nombre</label><input id="f-nombre" name="nombre" autocomplete="name" aria-describedby="e-nombre"><p class="err" id="e-nombre"></p></div>
+        <div class="field"><label for="f-negocio">Tu negocio <span class="hint">(opcional)</span></label><input id="f-negocio" name="negocio" autocomplete="organization"></div>
+      </div>
+      <div class="field"><label for="f-whatsapp">Tu WhatsApp</label>
+        <input id="f-whatsapp" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="+58 412 1234567" aria-describedby="h-whatsapp e-whatsapp">
+        <p class="hint" id="h-whatsapp">Con código de país.</p><p class="err" id="e-whatsapp"></p></div>
+      <div class="field"><label for="f-correo">Tu correo <span class="hint">(opcional)</span></label>
+        <input id="f-correo" name="correo" type="email" inputmode="email" autocomplete="email" aria-describedby="e-correo"><p class="err" id="e-correo"></p></div>
+    </div></fieldset>
+
+    <input type="text" name="_honey" id="f-honey" tabindex="-1" autocomplete="off" class="sr" aria-hidden="true">
+    <div class="grp-body">
+      <button class="btn" type="submit" id="send">Enviar solicitud</button>
+      <p class="form-status" id="form-status" role="alert"></p>
+      <p class="fine">Usamos tus datos solo para responderte. Primero conversamos; el precio llega cerrado en la propuesta.</p>
+    </div>
+  </form>
+
+  <section class="done" id="done" hidden tabindex="-1" aria-labelledby="done-h">
+    <div class="rule"></div>
+    <h2 id="done-h">Recibimos tu solicitud.</h2>
+    <p id="done-p">Te escribimos por WhatsApp.</p>
+    <ol>
+      <li><div><b>Conversamos</b><span>Nos cuentas qué frena tu negocio, sin tecnicismos.</span></div></li>
+      <li><div><b>Te damos dos caminos</b><span>Cada propuesta trae dos opciones con precio cerrado en dólares.</span></div></li>
+      <li><div><b>Arrancamos</b><span>50 % de anticipo y 50 % contra la entrega final.</span></div></li>
+    </ol>
+    <div class="actions">
+      <a class="btn" href="./">Ver lo que hacemos</a>
+      <button class="btn btn-ghost" type="button" id="again">Enviar otra solicitud</button>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap"><span>Web, automatización, bases de datos y sistemas con IA. Cotizamos en dólares.</span><span>© 2026 NegocIA</span></div>
+</footer>
+
+<script>
+(() => {
+// ---- Configuración ----
+// Dónde caen los leads. Si WEBHOOK_URL tiene valor (n8n), se usa primero; FormSubmit queda de respaldo.
+const WEBHOOK_URL = '';
+const FORMSUBMIT_EMAIL = 'isaac150305@gmail.com'; // mismo correo de las propuestas de NegocIA
+// Nombre del evento: se guarda con cada lead. También se puede pasar en el enlace del QR: evento.html?e=Nombre
+const EVENTO = new URLSearchParams(location.search).get('e') || 'Evento';
+const QUEUE_KEY = 'negocia-leads-pendientes';
+
+const $ = s => document.querySelector(s);
+const form = $('#prop'), btn = $('#send'), status = $('#form-status');
+const F = { nombre: $('#f-nombre'), whatsapp: $('#f-whatsapp'), correo: $('#f-correo') };
+
+const rules = {
+  nombre: v => v.trim().length >= 2 || 'Escribe tu nombre para saber a quién respondemos.',
+  whatsapp: v => v.replace(/\D/g, '').length >= 10 || 'Escribe tu número con código de país, por ejemplo +58 412 1234567.',
+  correo: v => !v.trim() || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) || 'Revisa el correo: falta la @ o el dominio. También puedes dejarlo vacío.',
+};
+function check(n) {
+  const r = rules[n](F[n].value), ok = r === true;
+  F[n].setAttribute('aria-invalid', ok ? 'false' : 'true');
+  $('#e-' + n).textContent = ok ? '' : r;
+  return ok;
+}
+Object.keys(rules).forEach(n => F[n].addEventListener('blur', () => { if (F[n].value) check(n); }));
+Object.keys(rules).forEach(n => F[n].addEventListener('input', () => { if (F[n].getAttribute('aria-invalid') === 'true') check(n); }));
+
+function lead() {
+  const d = new FormData(form);
+  return {
+    tipo: d.get('tipo'),
+    servicios: d.getAll('piezas').join(', ') || 'Sin elegir',
+    necesidad: (d.get('necesidad') || '').trim(),
+    plazo: d.get('plazo') || 'Sin fecha',
+    nombre: d.get('nombre').trim(),
+    negocio: (d.get('negocio') || '').trim(),
+    whatsapp: d.get('whatsapp').trim(),
+    correo: (d.get('correo') || '').trim(),
+    evento: EVENTO,
+    fecha: new Date().toISOString(),
+  };
+}
+
+async function post(url, data) {
+  const ctrl = new AbortController(), t = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(data), signal: ctrl.signal });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r;
+  } finally { clearTimeout(t); }
+}
+async function send(data) {
+  if (WEBHOOK_URL) { try { await post(WEBHOOK_URL, data); return; } catch (e) { /* cae al respaldo */ } }
+  const r = await post('https://formsubmit.co/ajax/' + FORMSUBMIT_EMAIL, {
+    ...data, _subject: `Lead NegocIA (${data.evento}): ${data.nombre}`, _template: 'table', _captcha: 'false',
+  });
+  // FormSubmit responde 200 con success "false" mientras el correo no esté activado: eso no es un envío.
+  const j = await r.json().catch(() => ({}));
+  if (String(j.success) !== 'true') throw new Error(j.message || 'FormSubmit no confirmó el envío');
+}
+
+// Cola local: si la red del evento falla, el lead se guarda en el teléfono y se reintenta al volver la conexión.
+const readQ = () => { try { return JSON.parse(localStorage.getItem(QUEUE_KEY)) || []; } catch { return []; } };
+const writeQ = q => { try { q.length ? localStorage.setItem(QUEUE_KEY, JSON.stringify(q)) : localStorage.removeItem(QUEUE_KEY); return true; } catch { return false; } };
+async function flush() {
+  const q = readQ(), left = [];
+  for (const d of q) { try { await send(d); } catch { left.push(d); } }
+  writeQ(left);
+}
+window.addEventListener('online', flush);
+flush();
+
+function showDone(data, queued) {
+  $('#done-h').textContent = `Recibimos tu solicitud, ${data.nombre.split(' ')[0]}.`;
+  $('#done-p').textContent = queued
+    ? 'Sin conexión por ahora: la guardamos en tu teléfono y se envía sola cuando vuelva la señal. No cierres esta pestaña todavía.'
+    : `Te escribimos al ${data.whatsapp} por WhatsApp.`;
+  form.hidden = true; $('#done').hidden = false; $('#done').focus();
+  window.scrollTo({ top: 0 });
+}
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  status.textContent = '';
+  if ($('#f-honey').value) return;
+  const bad = Object.keys(rules).filter(n => !check(n));
+  if (bad.length) { F[bad[0]].focus(); return; }
+  const data = lead();
+  btn.disabled = true; btn.textContent = 'Enviando…';
+  try { await send(data); showDone(data, false); }
+  catch {
+    if (writeQ([...readQ(), data])) showDone(data, true);
+    else status.textContent = `No pudimos enviarla por la conexión. Inténtalo de nuevo en un momento o escríbenos a ${FORMSUBMIT_EMAIL}.`;
+  }
+  finally { btn.disabled = false; btn.textContent = 'Enviar solicitud'; }
+});
+
+$('#again').addEventListener('click', () => {
+  form.reset(); Object.values(F).forEach(f => f.removeAttribute('aria-invalid'));
+  $('#done').hidden = true; form.hidden = false; F.nombre.focus();
+});
+})();
+</script>
+</body>
+</html>
