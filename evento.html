@@ -376,7 +376,7 @@ body.wizard .send-row{flex-wrap:wrap}
 // ---- Configuración ----
 // Dónde caen los leads. Si WEBHOOK_URL tiene valor (n8n), se usa primero; FormSubmit queda de respaldo.
 const WEBHOOK_URL = '';
-const FORMSUBMIT_EMAIL = 'isaac150305@gmail.com'; // mismo correo de las propuestas de NegocIA
+const FORMSUBMIT_EMAIL = 'somosnegocia@gmail.com'; // bandeja de NegocIA para los leads
 // Nombre del evento: se guarda con cada lead. También se puede pasar en el enlace del QR: evento?e=Nombre
 const params = new URLSearchParams(location.search);
 const EVENTO = params.get('e') || 'Evento';
@@ -420,6 +420,8 @@ function lead() {
     whatsapp: d.get('whatsapp').trim(),
     correo: (d.get('correo') || '').trim(),
     evento: EVENTO,
+    origen: 'Formulario de captación de leads',
+    pagina: location.origin + location.pathname,
     fecha: new Date().toISOString(),
   };
 }
@@ -494,7 +496,8 @@ async function post(url, data) {
 async function send(data) {
   if (WEBHOOK_URL) { try { await post(WEBHOOK_URL, data); return; } catch (e) { /* cae al respaldo */ } }
   const r = await post('https://formsubmit.co/ajax/' + FORMSUBMIT_EMAIL, {
-    ...data, _subject: `Lead NegocIA (${data.evento}): ${data.nombre}`, _template: 'table', _captcha: 'false',
+    ...data, _subject: `Nuevo lead del formulario de captación: ${data.nombre} (${data.tipo})`, _template: 'box', _captcha: 'false',
+    ...(data.correo ? { _replyto: data.correo } : {}),
   });
   // FormSubmit responde 200 con success "false" mientras el correo no esté activado: eso no es un envío.
   const j = await r.json().catch(() => ({}));
