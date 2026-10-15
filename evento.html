@@ -188,7 +188,10 @@ footer .wrap{display:flex;gap:var(--s-4);justify-content:space-between;flex-wrap
   .ticket{padding:var(--s-5)}
   .btn{padding:0 var(--s-5)}
 }
-@media (max-width:360px){.paths{grid-template-columns:1fr}.send-row{flex-direction:column;align-items:stretch}}
+@media (max-width:360px){.paths{grid-template-columns:1fr}
+  .send-row{column-gap:var(--s-2)}
+  .sendbar .btn{padding:0 var(--s-4);font-size:var(--t-sm)}
+  .sendbar .back{padding:0 var(--s-3)}}
 @media (min-width:700px) and (max-width:959px){.intro{padding-block:var(--s-6) var(--s-7)}}
 
 /* iPad horizontal y escritorio */
@@ -204,6 +207,31 @@ footer .wrap{display:flex;gap:var(--s-4);justify-content:space-between;flex-wrap
   body.sent .layout{grid-template-areas:"intro ticket";grid-template-rows:auto}
   body.sent .ticket{position:static}
 }
+/* ---------- teléfono e iPad vertical: un paso por pantalla ---------- */
+.progress{display:grid;gap:var(--s-2);margin-bottom:var(--s-5)}
+.progress p{font-size:var(--t-xs);color:var(--ink-muted)}
+.progress .bar{height:3px;border-radius:3px;background:var(--line)}
+.progress .bar i{display:block;height:100%;width:33.3%;border-radius:3px;background:var(--grad);transition:width .5s var(--ease)}
+body.wizard fieldset.grp:not(.cur){display:none}
+body.wizard fieldset.grp.cur{border-top:0;padding-top:0}
+body.wizard fieldset.grp.cur ~ fieldset.grp.cur{border-top:1px solid var(--line);padding-top:var(--s-6)}
+body.wizard:not(.step-1) .intro{display:none}
+body.wizard:not(.step-3) .ticket{display:none}
+body.wizard:not(.step-1) .layout{padding-top:var(--s-2)}
+body.wizard:not(.step-3) .missing{display:none}
+body.wizard.step-1 .paths{grid-template-columns:1fr}
+body.wizard.step-1 .path span{padding:var(--s-5)}
+body.wizard.step-1 .path b{font-size:var(--t-1)}
+body.wizard.step-1 .path small{font-size:var(--t-sm)}
+body.wizard .intro{padding-block:var(--s-3) var(--s-5)}
+body.wizard .intro .lead{display:none}
+body.wizard .intro h1{font-size:clamp(1.9rem,8.6vw,3rem)}
+body.wizard .ticket{margin-top:var(--s-2)}
+.back{padding:0 var(--s-5)}
+body.wizard .send-row .btn:not(.back){flex:1}
+body.wizard .missing{flex-basis:100%;order:-1}
+body.wizard .send-row{flex-wrap:wrap}
+
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition-duration:.01ms!important}}
 </style>
 </head>
@@ -249,14 +277,19 @@ footer .wrap{display:flex;gap:var(--s-4);justify-content:space-between;flex-wrap
   </div>
 
   <form class="prop" id="prop" novalidate>
-    <fieldset class="grp"><legend>Qué quieres recibir</legend><div class="grp-body">
+    <div class="progress" id="progress" aria-live="polite" hidden>
+      <p id="p-num">Paso 1 de 3</p>
+      <div class="bar"><i id="p-bar"></i></div>
+    </div>
+
+    <fieldset class="grp" data-step="1"><legend>Qué quieres recibir</legend><div class="grp-body">
       <div class="paths">
         <label class="path"><input type="radio" name="tipo" value="Propuesta con precio" checked><span><b>Una propuesta</b><small>Dos caminos con precio cerrado en dólares, qué incluye y qué no.</small></span></label>
         <label class="path"><input type="radio" name="tipo" value="Diagnóstico gratuito"><span><b>Un diagnóstico gratis</b><small>30 minutos para ver qué se puede automatizar en tu negocio.</small></span></label>
       </div>
     </div></fieldset>
 
-    <fieldset class="grp"><legend>Qué te interesa</legend><div class="grp-body">
+    <fieldset class="grp" data-step="2"><legend>Qué te interesa</legend><div class="grp-body">
       <div class="opts" role="group" aria-label="Servicios que te interesan">
         <label class="opt"><input type="checkbox" name="piezas" value="Página web"><span>Página web</span></label>
         <label class="opt"><input type="checkbox" name="piezas" value="Sistema con IA"><span>Sistema con IA</span></label>
@@ -268,7 +301,7 @@ footer .wrap{display:flex;gap:var(--s-4);justify-content:space-between;flex-wrap
         <textarea id="f-necesidad" name="necesidad" maxlength="600" placeholder="Por ejemplo: mis clientes piden cotización por WhatsApp y respondo todo a mano"></textarea></div>
     </div></fieldset>
 
-    <fieldset class="grp"><legend>Para cuándo</legend><div class="grp-body">
+    <fieldset class="grp" data-step="2"><legend>Para cuándo</legend><div class="grp-body">
       <div class="opts">
         <label class="opt"><input type="radio" name="plazo" value="Lo antes posible"><span>Lo antes posible</span></label>
         <label class="opt"><input type="radio" name="plazo" value="Este mes"><span>Este mes</span></label>
@@ -277,7 +310,7 @@ footer .wrap{display:flex;gap:var(--s-4);justify-content:space-between;flex-wrap
       </div>
     </div></fieldset>
 
-    <fieldset class="grp"><legend>Cómo te contactamos</legend><div class="grp-body">
+    <fieldset class="grp" data-step="3"><legend>Cómo te contactamos</legend><div class="grp-body">
       <div class="two">
         <div class="field"><label for="f-nombre">Tu nombre</label><input id="f-nombre" name="nombre" autocomplete="name" aria-describedby="e-nombre"><p class="err" id="e-nombre"></p></div>
         <div class="field"><label for="f-negocio">Tu negocio <span class="hint">(opcional)</span></label><input id="f-negocio" name="negocio" autocomplete="organization"></div>
@@ -325,6 +358,7 @@ footer .wrap{display:flex;gap:var(--s-4);justify-content:space-between;flex-wrap
 
   <div class="sendbar" id="sendbar">
     <div class="send-row">
+      <button class="btn btn-ghost back" type="button" id="back" hidden>Atrás</button>
       <p class="missing" id="missing" aria-live="polite">Falta tu nombre y tu WhatsApp.</p>
       <button class="btn" type="submit" form="prop" id="send">Pedir mi propuesta</button>
     </div>
@@ -408,7 +442,7 @@ function draft() {
   set($('#t-need'), d.necesidad || (unsure ? 'Lo definimos juntos en la conversación.' : 'Aquí aparece lo que quieres resolver.'), !d.necesidad && !unsure);
   set($('#t-plazo'), d.plazo === 'Sin fecha' ? 'Sin fecha todavía' : d.plazo, d.plazo === 'Sin fecha');
   set($('#t-wa'), d.whatsapp || 'Falta tu número', !d.whatsapp);
-  btn.textContent = t.btn;
+  btn.textContent = wizard() && step < 3 ? 'Siguiente' : t.btn;
   const falta = [!ok('nombre') && 'tu nombre', !ok('whatsapp') && 'tu WhatsApp'].filter(Boolean);
   const ready = !falta.length && ok('correo');
   ticket.classList.toggle('ready', ready);
@@ -419,6 +453,34 @@ function draft() {
 }
 form.addEventListener('input', draft);
 form.addEventListener('change', draft);
+
+// ---- Teléfono e iPad vertical: un paso por pantalla ----
+const narrow = matchMedia('(max-width:959px)');
+let step = 1;
+const wizard = () => document.body.classList.contains('wizard');
+function render() {
+  const on = narrow.matches;
+  document.body.classList.toggle('wizard', on);
+  [1, 2, 3].forEach(n => document.body.classList.toggle('step-' + n, on && step === n));
+  form.querySelectorAll('fieldset[data-step]').forEach(f => f.classList.toggle('cur', !on || +f.dataset.step === step));
+  $('#progress').hidden = !on;
+  $('#p-num').textContent = `Paso ${step} de 3`;
+  $('#p-bar').style.width = (step / 3 * 100) + '%';
+  $('#back').hidden = !on || step === 1;
+  draft();
+}
+function go(n) {
+  step = Math.min(3, Math.max(1, n)); render();
+  window.scrollTo({ top: 0 });
+  const first = form.querySelector('fieldset.cur legend');
+  if (first) { first.tabIndex = -1; first.focus({ preventScroll: true }); }
+}
+$('#back').addEventListener('click', () => go(step - 1));
+// En el paso 1, elegir una opción avanza solo.
+form.querySelectorAll('input[name=tipo]').forEach(r => r.addEventListener('click', () => {
+  if (wizard() && step === 1) setTimeout(() => go(2), 220);
+}));
+narrow.addEventListener('change', render);
 
 // ---- Envío ----
 async function post(url, data) {
@@ -482,12 +544,13 @@ function reset() {
   Object.keys(rules).forEach(n => { $('#e-' + n).textContent = ''; });
   document.body.classList.remove('sent'); ticket.classList.remove('sent');
   $('#t-done').hidden = true; form.hidden = false; window.scrollTo({ top: 0 });
-  draft();
+  step = 1; render();
 }
 
 form.addEventListener('submit', async e => {
   e.preventDefault();
   status.textContent = '';
+  if (wizard() && step < 3) { go(step + 1); return; }
   if ($('#f-honey').value) return;
   const bad = Object.keys(rules).filter(n => !check(n));
   if (bad.length) { F[bad[0]].focus(); return; }
@@ -501,8 +564,8 @@ form.addEventListener('submit', async e => {
   finally { btn.disabled = false; btn.textContent = label; }
 });
 
-$('#again').addEventListener('click', () => { reset(); if (!KIOSCO) F.nombre.focus(); });
-draft();
+$('#again').addEventListener('click', () => { reset(); if (!KIOSCO && !wizard()) F.nombre.focus(); });
+render();
 })();
 </script>
 </body>
