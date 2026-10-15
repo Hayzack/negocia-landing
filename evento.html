@@ -374,8 +374,8 @@ body.wizard .send-row{flex-wrap:wrap}
 <script>
 (() => {
 // ---- Configuración ----
-// Dónde caen los leads. Si WEBHOOK_URL tiene valor (n8n), se usa primero; FormSubmit queda de respaldo.
-const WEBHOOK_URL = '';
+// Dónde caen los leads: primero /api/lead (correo HTML propio con Resend); si falla, FormSubmit como respaldo.
+const LEAD_ENDPOINT = '/api/lead';
 const FORMSUBMIT_EMAIL = 'somosnegocia@gmail.com'; // bandeja de NegocIA para los leads
 // Nombre del evento: se guarda con cada lead. También se puede pasar en el enlace del QR: evento?e=Nombre
 const params = new URLSearchParams(location.search);
@@ -494,7 +494,7 @@ async function post(url, data) {
   } finally { clearTimeout(t); }
 }
 async function send(data) {
-  if (WEBHOOK_URL) { try { await post(WEBHOOK_URL, data); return; } catch (e) { /* cae al respaldo */ } }
+  if (location.protocol.startsWith('http')) { try { await post(LEAD_ENDPOINT, data); return; } catch (e) { /* cae al respaldo */ } }
   const r = await post('https://formsubmit.co/ajax/' + FORMSUBMIT_EMAIL, {
     ...data, _subject: `Nuevo lead del formulario de captación: ${data.nombre} (${data.tipo})`, _template: 'box', _captcha: 'false',
     ...(data.correo ? { _replyto: data.correo } : {}),

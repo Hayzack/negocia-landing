@@ -1,0 +1,14 @@
+{
+  "tipo": "Diagnóstico gratuito",
+  "servicios": "Sistema con IA, Automatización",
+  "necesidad": "Mis clientes piden cotización por WhatsApp y respondo todo a mano",
+  "plazo": "Este mes",
+  "nombre": "María González",
+  "negocio": "Panadería La Esquina",
+  "whatsapp": "+58 414 5551234",
+  "correo": "maria@ejemplo.com",
+  "evento": "Expo Pymes",
+  "origen": "Formulario de captación de leads",
+  "pagina": "https://negocia-landing-two.vercel.app/evento",
+  "fecha": "2026-10-16T14:32:00.000Z"
+}
